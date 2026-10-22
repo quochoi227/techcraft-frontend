@@ -461,15 +461,14 @@ Gemini trả về: Giải thích + gợi ý 1–3 PC Case phù hợp nhất
 | PUT | `/api/products/{id}` | Cập nhật sản phẩm | Admin |
 | DELETE | `/api/products/{id}` | Xoá sản phẩm (soft delete) | Admin |
 
-### Orders
+### Images / Cloudinary
 | Method | Endpoint | Mô tả | Auth |
 |--------|----------|-------|------|
-| GET | `/api/orders` | Lịch sử đơn hàng của user hiện tại | User |
-| GET | `/api/orders/{id}` | Chi tiết đơn hàng | User |
-| POST | `/api/orders` | Tạo đơn hàng mới | User |
-| PUT | `/api/orders/{id}/cancel` | Huỷ đơn hàng | User |
-| GET | `/api/admin/orders` | Tất cả đơn hàng | Admin |
-| PUT | `/api/admin/orders/{id}/status` | Cập nhật trạng thái đơn hàng | Admin |
+| POST | `/api/images/upload` | Upload 1 hình ảnh lên Cloudinary (`multipart/form-data`, hỗ trợ param `folder`) | Admin |
+| POST | `/api/images/upload-multiple` | Upload danh sách nhiều hình ảnh (tối đa 10 ảnh/lần) | Admin |
+| DELETE | `/api/images?publicId={publicId}` | Xoá hình ảnh khỏi Cloudinary qua query param | Admin |
+| DELETE | `/api/images/{publicId}` | Xoá hình ảnh khỏi Cloudinary qua path param | Admin |
+*(Hỗ trợ cả 2 tiền tố `/api/images` và `/api/admin/images`)*
 
 ### Cart
 | Method | Endpoint | Mô tả | Auth |
