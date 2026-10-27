@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo } from "react"
 import {
   Plus,
   Search,
@@ -38,15 +38,6 @@ const CATEGORY_TABS: { label: string; value: ProductCategory | "ALL"; count: num
 ]
 
 export const ProductListPage: React.FC = () => {
-  useEffect(() => {
-    fetch("http://localhost:8080/api/products")
-    .then((response) => response.json())
-    .then((data) => {
-      setProducts(data.data.content)
-      console.log("Fetched products from API:", data)
-    })
-  }, [])
-
   // State dữ liệu sản phẩm khởi tạo từ API response mẫu
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS_PAGE.content)
   const [currentPage, setCurrentPage] = useState<number>(MOCK_PRODUCTS_PAGE.page)

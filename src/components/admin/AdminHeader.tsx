@@ -1,5 +1,6 @@
 import React from "react"
 import { Bell } from "lucide-react"
+import { useAuthStore } from "@/stores/authStore"
 
 interface AdminHeaderProps {
   breadcrumbs?: { label: string; href?: string }[]
@@ -11,6 +12,18 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     { label: "Quản lý sản phẩm" },
   ],
 }) => {
+  const user = useAuthStore((state) => state.user)
+
+  const displayName = user?.fullName || "Trần Minh Quản Trị"
+  const displayRole = user?.role || "SUPER_ADMIN"
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(-2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase() || "TM"
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-40">
       {/* Breadcrumb */}
@@ -37,7 +50,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           title="Thông báo mới"
         >
           <Bell className="w-5 h-5" />
-          <span className="absolute 1 top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
             5
           </span>
         </button>
@@ -45,15 +58,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
         {/* User Info & Avatar */}
         <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
           <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-            TM
+            {initials}
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-slate-800 leading-tight">
-              Trần Minh Quản Trị
+              {displayName}
             </span>
             <div className="mt-0.5">
               <span className="inline-block text-[10px] font-semibold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">
-                SUPER_ADMIN
+                {displayRole}
               </span>
             </div>
           </div>

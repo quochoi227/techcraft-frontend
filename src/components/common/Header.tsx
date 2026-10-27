@@ -1,17 +1,34 @@
 import React, { useState } from "react"
 import { Link, NavLink, useNavigate } from "react-router-dom"
-import { Cpu, Search, ShoppingCart, Menu, X } from "lucide-react"
+import { Cpu, Search, ShoppingCart, Menu, X, LogOut, ShieldCheck, User as UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/stores/authStore"
+import { authService } from "@/services/api/authService"
+import { toast } from "sonner"
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
 
+  const { user, isAuthenticated, clearAuth } = useAuthStore()
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // Bỏ qua lỗi mạng khi logout
+    } finally {
+      clearAuth()
+      toast.success("Đã đăng xuất khỏi tài khoản thành công")
+      navigate("/")
     }
   }
 
@@ -104,25 +121,60 @@ export const Header: React.FC = () => {
             {/* Vertical separator */}
             <div className="hidden sm:block h-5 w-px bg-slate-200 mx-1" />
 
-            {/* Auth Buttons */}
-            <div className="hidden sm:flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="border-slate-200 text-slate-700 hover:bg-slate-100 text-sm font-medium px-4 h-9"
-              >
-                <Link to="/register">Đăng ký</Link>
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                asChild
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 h-9 shadow-sm"
-              >
-                <Link to="/login">Đăng nhập</Link>
-              </Button>
-            </div>
+            {/* Auth Buttons or Logged-in User Profile */}
+            {isAuthenticated && user ? (
+              <div className="hidden sm:flex items-center gap-3">
+                {user.role === "ADMIN" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="h-9 gap-1.5 border-blue-200 bg-blue-50/50 text-blue-700 hover:bg-blue-100/70 text-xs font-semibold"
+                  >
+                    <Link to="/admin/products">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Trang Admin</span>
+                    </Link>
+                  </Button>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                    {user.fullName ? user.fullName.slice(0, 2).toUpperCase() : "TC"}
+                  </div>
+                  <span className="text-sm font-semibold text-slate-800 max-w-[120px] truncate">
+                    {user.fullName || user.email}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="border-slate-200 text-slate-700 hover:bg-slate-100 text-sm font-medium px-4 h-9"
+                >
+                  <Link to="/register">Đăng ký</Link>
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  asChild
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 h-9 shadow-sm"
+                >
+                  <Link to="/login">Đăng nhập</Link>
+                </Button>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -141,7 +193,7 @@ export const Header: React.FC = () => {
 
         {/* Mobile dropdown menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-100 space-y-3">
+          <div className="md:hidden py-4 border-t border-slate-100 space-y-3 animate-in fade-in">
             <form onSubmit={handleSearch} className="relative mb-3">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
@@ -175,23 +227,57 @@ export const Header: React.FC = () => {
                 Tư vấn AI
               </Link>
             </div>
-            <div className="pt-3 border-t border-slate-100 flex gap-2">
-              <Button
-                variant="outline"
-                className="w-1/2"
-                asChild
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Link to="/register">Đăng ký</Link>
-              </Button>
-              <Button
-                variant="default"
-                className="w-1/2 bg-blue-600"
-                asChild
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Link to="/login">Đăng nhập</Link>
-              </Button>
+
+            <div className="pt-3 border-t border-slate-100">
+              {isAuthenticated && user ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg">
+                    <UserIcon className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-slate-800">
+                      {user.fullName || user.email}
+                    </span>
+                  </div>
+                  {user.role === "ADMIN" && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-xs font-semibold"
+                      asChild
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link to="/admin/products">Trang Quản trị Admin</Link>
+                    </Button>
+                  )}
+                  <Button
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleLogout()
+                    }}
+                  >
+                    Đăng xuất
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="w-1/2"
+                    asChild
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link to="/register">Đăng ký</Link>
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="w-1/2 bg-blue-600"
+                    asChild
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link to="/login">Đăng nhập</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

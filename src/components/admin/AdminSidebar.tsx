@@ -1,5 +1,5 @@
 import React from "react"
-import { NavLink, Link } from "react-router-dom"
+import { NavLink, Link, useNavigate } from "react-router-dom"
 import {
   Cpu,
   LayoutDashboard,
@@ -11,8 +11,25 @@ import {
   ExternalLink,
   LogOut,
 } from "lucide-react"
+import { useAuthStore } from "@/stores/authStore"
+import { authService } from "@/services/api/authService"
+import { toast } from "sonner"
 
 export const AdminSidebar: React.FC = () => {
+  const navigate = useNavigate()
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // Bỏ qua lỗi mạng khi logout
+    } finally {
+      clearAuth()
+      toast.success("Đã đăng xuất khỏi phiên làm việc quản trị viên")
+      navigate("/login")
+    }
+  }
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 min-h-screen">
       {/* Brand Logo Header */}
@@ -138,7 +155,7 @@ export const AdminSidebar: React.FC = () => {
         </Link>
 
         <button
-          onClick={() => alert("Đăng xuất phiên làm việc quản trị viên.")}
+          onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" />

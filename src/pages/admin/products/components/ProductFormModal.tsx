@@ -331,16 +331,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
     const payload = getConstructedPayload()
 
-    fetch("http://localhost:8080/api/products", {
-      method: initialProduct ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).catch((err) => {
-      console.error("Error sending product data:", err)
-      toast.error("Đã xảy ra lỗi khi gửi dữ liệu sản phẩm lên server.")
-    })
-
     onSave(
       {
         id: initialProduct?.id || `prod-${Date.now()}`,
