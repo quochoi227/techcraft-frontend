@@ -1,4 +1,5 @@
 import type { Product, ProductCategory } from './product'
+import type { Review } from './review'
 
 // Nhóm nhu cầu PC Case
 export type PcCaseUseCase =
@@ -24,6 +25,11 @@ export interface PcCase {
   isActive: boolean
   active?: boolean // Jackson alias
   items: PcCaseItem[]
+
+  // Đánh giá và thống kê điểm số từ Backend
+  reviews?: Review[]
+  averageRating?: number
+  totalReviews?: number
   createdAt?: string
   updatedAt?: string
 
@@ -46,6 +52,7 @@ export interface CreatePcCasePayload {
   components?: Record<string, string>
 }
 
+// Payload khi cập nhật PC Case (tuyệt đối không gửi field reviews để tránh mất dữ liệu đánh giá trong Database)
 export interface UpdatePcCasePayload extends CreatePcCasePayload {}
 
 export interface ValidatePcCasePayload {
