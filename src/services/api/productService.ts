@@ -7,6 +7,7 @@ import type {
   Product,
   ProductCategory,
   ProductCreatePayload,
+  ProductUpdatePayload,
 } from "@/types/product"
 
 export interface ProductQueryParams {
@@ -72,7 +73,7 @@ export const productService = {
    */
   updateProduct: async (
     id: string,
-    payload: Partial<ProductCreatePayload>
+    payload: ProductUpdatePayload
   ): Promise<ApiResponse<Product>> => {
     return axiosClient.put(`/products/${id}`, payload)
   },

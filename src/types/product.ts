@@ -1,3 +1,6 @@
+import type { Review } from './review'
+export * from './review'
+
 export type ProductCategory =
   | 'CPU'
   | 'MAINBOARD'
@@ -70,6 +73,11 @@ export interface Product {
   updatedAt?: string
   active: boolean // Tên trường boolean chuẩn trả về từ Jackson Spring Boot
 
+  // Danh sách đánh giá và thống kê điểm số
+  reviews?: Review[]
+  averageRating?: number
+  totalReviews?: number
+
   // Các trường tiện ích bổ sung cho client (nếu có)
   isActive?: boolean // camelCase alias của active
   is_active?: boolean // snake_case alias của active
@@ -117,4 +125,7 @@ export interface ProductCreatePayload {
 }
 
 // Alias cho ProductItem để giữ tính tương thích với các component cũ
+// Payload khi cập nhật thông tin sản phẩm (tuyệt đối không gửi field reviews để tránh mất dữ liệu đánh giá)
+export interface ProductUpdatePayload extends Partial<ProductCreatePayload> {}
+
 export type ProductItem = Product
