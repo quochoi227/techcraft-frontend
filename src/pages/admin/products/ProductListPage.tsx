@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
   Plus,
   Search,
@@ -16,85 +16,189 @@ import {
   Edit,
   EyeOff,
   CheckCircle2,
+  Loader2,
+  AlertCircle,
 } from "lucide-react"
-import type { ProductCategory, Product } from "@/types/product"
+import type { ProductCategory, Product, ProductCreatePayload } from "@/types/product"
 import { MOCK_PRODUCTS_PAGE } from "./mockData"
 import { ProductFormModal } from "./components/ProductFormModal"
+import { productService } from "@/services/api/productService"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
 
 // Danh sách các tab danh mục
-const CATEGORY_TABS: { label: string; value: ProductCategory | "ALL"; count: number }[] = [
-  { label: "Tất cả", value: "ALL", count: 128 },
-  { label: "CPU", value: "CPU", count: 18 },
-  { label: "MAINBOARD", value: "MAINBOARD", count: 16 },
-  { label: "RAM", value: "RAM", count: 22 },
-  { label: "GPU", value: "GPU", count: 20 },
-  { label: "STORAGE", value: "STORAGE", count: 24 },
-  { label: "PSU", value: "PSU", count: 12 },
-  { label: "CASE", value: "CASE", count: 10 },
-  { label: "CPU_COOLER", value: "CPU_COOLER", count: 6 },
+const CATEGORY_TABS: { label: string; value: ProductCategory | "ALL"; count?: number }[] = [
+  { label: "Tất cả", value: "ALL" },
+  { label: "CPU", value: "CPU" },
+  { label: "MAINBOARD", value: "MAINBOARD" },
+  { label: "RAM", value: "RAM" },
+  { label: "GPU", value: "GPU" },
+  { label: "STORAGE", value: "STORAGE" },
+  { label: "PSU", value: "PSU" },
+  { label: "CASE", value: "CASE" },
+  { label: "CPU_COOLER", value: "CPU_COOLER" },
 ]
 
 export const ProductListPage: React.FC = () => {
-  // State dữ liệu sản phẩm khởi tạo từ API response mẫu
+  // State dữ liệu sản phẩm từ API
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS_PAGE.content)
-  const [currentPage, setCurrentPage] = useState<number>(MOCK_PRODUCTS_PAGE.page)
-  const totalElements = MOCK_PRODUCTS_PAGE.totalElements
-  const totalPages = MOCK_PRODUCTS_PAGE.totalPages
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isUsingFallback, setIsUsingFallback] = useState<boolean>(false)
 
-  // Bộ lọc
+  // Phân trang Spring Data JPA (0-based)
+  const [currentPage, setCurrentPage] = useState<number>(0)
+  const [pageSize] = useState<number>(8)
+  const [totalElements, setTotalElements] = useState<number>(MOCK_PRODUCTS_PAGE.totalElements)
+  const [totalPages, setTotalPages] = useState<number>(MOCK_PRODUCTS_PAGE.totalPages)
+
+  // Bộ lọc & Tìm kiếm
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "ALL">("ALL")
   const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [stockFilter, setStockFilter] = useState<"ALL" | "IN_STOCK" | "LOW_STOCK" | "OUT_OF_STOCK">("ALL")
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL")
-  const [sortBy, setSortBy] = useState<"NEWEST" | "PRICE_ASC" | "PRICE_DESC" | "STOCK_DESC">("NEWEST")
+  const [sortBy, setSortBy] = useState<
+    "NEWEST" | "OLDEST" | "PRICE_ASC" | "PRICE_DESC" | "STOCK_DESC" | "NAME_ASC" | "NAME_DESC"
+  >("NEWEST")
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
-  // Filter & Search Logic
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((p) => {
-        // Lọc danh mục
-        if (selectedCategory !== "ALL" && p.category !== selectedCategory) {
-          return false
+  // Debounce tìm kiếm 400ms
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+      setCurrentPage(0)
+    }, 400)
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [searchQuery])
+
+  /**
+   * Gọi API GET /api/products
+   */
+  const fetchProducts = useCallback(
+    async (pageToFetch: number = currentPage) => {
+      setIsLoading(true)
+
+      // Chuyển đổi trạng thái sắp xếp theo đúng quy chuẩn Backend:
+      // Backend (ProductFilterRequest): sortBy ("createdAt" | "price" | "name" | "stockQuantity") và sortDir ("asc" | "desc")
+      let apiSortBy: "createdAt" | "price" | "name" | "stockQuantity" = "createdAt"
+      let apiSortDir: "asc" | "desc" = "desc"
+
+      switch (sortBy) {
+        case "PRICE_ASC":
+          apiSortBy = "price"
+          apiSortDir = "asc"
+          break
+        case "PRICE_DESC":
+          apiSortBy = "price"
+          apiSortDir = "desc"
+          break
+        case "STOCK_DESC":
+          apiSortBy = "stockQuantity"
+          apiSortDir = "desc"
+          break
+        case "NAME_ASC":
+          apiSortBy = "name"
+          apiSortDir = "asc"
+          break
+        case "NAME_DESC":
+          apiSortBy = "name"
+          apiSortDir = "desc"
+          break
+        case "OLDEST":
+          apiSortBy = "createdAt"
+          apiSortDir = "asc"
+          break
+        case "NEWEST":
+        default:
+          apiSortBy = "createdAt"
+          apiSortDir = "desc"
+          break
+      }
+
+      try {
+        const response = await productService.getProducts({
+          page: pageToFetch,
+          size: pageSize,
+          category: selectedCategory !== "ALL" ? selectedCategory : undefined,
+          search: debouncedSearch.trim() || undefined,
+          sortBy: apiSortBy,
+          sortDir: apiSortDir,
+          isActive: statusFilter === "ACTIVE" ? true : statusFilter === "INACTIVE" ? false : undefined,
+        })
+
+        // Bóc tách dữ liệu từ envelope ApiResponse
+        const pageData = response?.data || (response as any)
+        if (pageData && Array.isArray(pageData.content)) {
+          setProducts(pageData.content)
+          setTotalElements(pageData.totalElements ?? pageData.content.length)
+          setTotalPages(pageData.totalPages ?? 1)
+          setCurrentPage(pageData.page ?? pageToFetch)
+          setIsUsingFallback(false)
+        } else {
+          throw new Error("Phản hồi từ API không đúng định dạng PageData")
         }
-        // Tìm kiếm
-        if (searchQuery.trim()) {
-          const query = searchQuery.toLowerCase()
-          const matchName = p.name.toLowerCase().includes(query)
-          const matchSku = p.sku ? p.sku.toLowerCase().includes(query) : false
-          const matchBrand = p.brand ? p.brand.toLowerCase().includes(query) : false
-          if (!matchName && !matchSku && !matchBrand) return false
+      } catch (err: any) {
+        console.warn("Không thể tải danh sách sản phẩm từ backend API. Đang sử dụng Mock Data dự phòng:", err.message)
+        setIsUsingFallback(true)
+
+        // Lọc mock data dự phòng cục bộ khi backend chưa mở
+        let mockList = MOCK_PRODUCTS_PAGE.content
+        if (selectedCategory !== "ALL") {
+          mockList = mockList.filter((p) => p.category === selectedCategory)
         }
-        // Lọc tồn kho
-        if (stockFilter === "IN_STOCK" && p.stockQuantity <= 5) return false
-        if (stockFilter === "LOW_STOCK" && (p.stockQuantity === 0 || p.stockQuantity > 5)) return false
-        if (stockFilter === "OUT_OF_STOCK" && p.stockQuantity !== 0) return false
+        if (debouncedSearch.trim()) {
+          const q = debouncedSearch.toLowerCase()
+          mockList = mockList.filter((p) => p.name.toLowerCase().includes(q))
+        }
+        // Sắp xếp mock data dự phòng tương ứng
+        mockList = [...mockList].sort((a, b) => {
+          if (sortBy === "PRICE_ASC") return a.price - b.price
+          if (sortBy === "PRICE_DESC") return b.price - a.price
+          if (sortBy === "STOCK_DESC") return b.stockQuantity - a.stockQuantity
+          if (sortBy === "NAME_ASC") return a.name.localeCompare(b.name)
+          if (sortBy === "NAME_DESC") return b.name.localeCompare(a.name)
+          if (sortBy === "OLDEST") {
+            return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+          }
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        })
+        setProducts(mockList)
+        setTotalElements(mockList.length)
+        setTotalPages(Math.max(1, Math.ceil(mockList.length / pageSize)))
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [currentPage, pageSize, selectedCategory, debouncedSearch, sortBy, statusFilter]
+  )
 
-        // Lọc trạng thái kích hoạt (active)
-        if (statusFilter === "ACTIVE" && !p.active) return false
-        if (statusFilter === "INACTIVE" && p.active) return false
+  // Tự động gọi API khi mount hoặc khi các bộ lọc thay đổi
+  useEffect(() => {
+    fetchProducts(currentPage)
+  }, [fetchProducts, currentPage])
 
-        return true
-      })
-      .sort((a, b) => {
-        if (sortBy === "PRICE_ASC") return a.price - b.price
-        if (sortBy === "PRICE_DESC") return b.price - a.price
-        if (sortBy === "STOCK_DESC") return b.stockQuantity - a.stockQuantity
-        return 0
-      })
-  }, [products, selectedCategory, searchQuery, stockFilter, statusFilter, sortBy])
+  // Lọc thêm mức tồn kho cục bộ (nếu backend chưa có filter mức tồn cụ thể)
+  const displayedProducts = products.filter((p) => {
+    if (stockFilter === "IN_STOCK" && p.stockQuantity <= 5) return false
+    if (stockFilter === "LOW_STOCK" && (p.stockQuantity === 0 || p.stockQuantity > 5)) return false
+    if (stockFilter === "OUT_OF_STOCK" && p.stockQuantity !== 0) return false
+    return true
+  })
 
-  // Selection Logic
+  // Chọn checkbox
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(filteredProducts.map((p) => p.id))
+      setSelectedIds(displayedProducts.map((p) => p.id))
     } else {
       setSelectedIds([])
     }
@@ -106,36 +210,47 @@ export const ProductListPage: React.FC = () => {
     )
   }
 
-  const handleDeleteSelected = () => {
+  // Xóa hàng loạt
+  const handleDeleteSelected = async () => {
     if (!selectedIds.length) return
-    if (confirm(`Bạn có chắc muốn xóa ${selectedIds.length} linh kiện đã chọn?`)) {
-      setProducts((prev) => prev.filter((p) => !selectedIds.includes(p.id)))
+    if (!confirm(`Bạn có chắc muốn xóa ${selectedIds.length} linh kiện đã chọn?`)) return
+
+    try {
+      // Gọi API xóa từng item
+      await Promise.allSettled(selectedIds.map((id) => productService.deleteProduct(id)))
+      toast.success(`Đã xóa thành công ${selectedIds.length} linh kiện`)
       setSelectedIds([])
-      toast.success("Đã xóa các linh kiện thành công!")
+      fetchProducts(currentPage)
+    } catch {
+      toast.error("Xóa linh kiện thất bại")
     }
   }
 
-  // Toggle trạng thái active trực tiếp từ bảng
-  const handleToggleActive = (product: Product) => {
-    const updatedStatus = !product.active
-    setProducts((prev) =>
-      prev.map((p) => (p.id === product.id ? { ...p, active: updatedStatus } : p))
-    )
-    toast.info(
-      `Đã chuyển linh kiện sang trạng thái: ${updatedStatus ? "Đang kinh doanh" : "Tạm ngưng"}`
-    )
-  }
+  // Lưu sản phẩm từ Modal (Tạo mới hoặc Sửa)
+  const handleSaveProduct = async (
+    _savedProduct: Partial<Product>,
+    payload?: ProductCreatePayload
+  ): Promise<boolean> => {
+    if (!payload) return false
 
-  const handleSaveProduct = (savedProduct: Partial<Product>) => {
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) => (p.id === editingProduct.id ? ({ ...p, ...savedProduct } as Product) : p))
-      )
-    } else {
-      console.log("Saved new product:", savedProduct)
-      setProducts((prev) => [savedProduct as Product, ...prev])
+    try {
+      if (editingProduct) {
+        await productService.updateProduct(editingProduct.id, payload)
+        toast.success("Cập nhật thông tin linh kiện thành công!")
+      } else {
+        await productService.createProduct(payload)
+        toast.success("Đã thêm linh kiện mới vào hệ thống!")
+      }
+      setIsModalOpen(false)
+      setEditingProduct(null)
+      await fetchProducts(0)
+      return true
+    } catch (err: any) {
+      console.error("Lỗi khi lưu sản phẩm:", err)
+      // Khi gặp lỗi (Bad Request, validation,...):
+      // Tuyệt đối KHÔNG đóng modal và KHÔNG thêm dữ liệu lỗi vào danh sách frontend!
+      return false
     }
-    setEditingProduct(null)
   }
 
   const handleResetFilters = () => {
@@ -144,6 +259,7 @@ export const ProductListPage: React.FC = () => {
     setStockFilter("ALL")
     setStatusFilter("ALL")
     setSortBy("NEWEST")
+    setCurrentPage(0)
     toast.info("Đã làm mới bộ lọc và danh sách")
   }
 
@@ -170,7 +286,7 @@ export const ProductListPage: React.FC = () => {
         }
       case "RAM":
         return {
-          primary: `${detail.type || "DDR5"} • ${detail.speedMhz || detail.speed_mhz || 6000}MHz • ${detail.totalGb || detail.total_gb || 32}GB (${detail.sticks || 2}×${detail.capacityGb || detail.capacity_gb || 16}GB)`,
+          primary: `${detail.type || "DDR5"} • ${detail.speedMhz || detail.speed_mhz || 6000}MHz • ${detail.totalGb || detail.total_gb || 32}GB`,
           secondary: "Intel XMP 3.0 & AMD EXPO",
         }
       case "MAINBOARD":
@@ -254,6 +370,24 @@ export const ProductListPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Thông báo chế độ dữ liệu nếu đang offline */}
+      {isUsingFallback && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              Chưa kết nối được máy chủ backend (`{import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api"}`). Đang hiển thị dữ liệu mẫu.
+            </span>
+          </div>
+          <button
+            onClick={() => fetchProducts(currentPage)}
+            className="text-blue-600 font-semibold hover:underline ml-2"
+          >
+            Thử kết nối lại
+          </button>
+        </div>
+      )}
+
       {/* 1. Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -286,7 +420,10 @@ export const ProductListPage: React.FC = () => {
             return (
               <button
                 key={tab.value}
-                onClick={() => setSelectedCategory(tab.value)}
+                onClick={() => {
+                  setSelectedCategory(tab.value)
+                  setCurrentPage(0)
+                }}
                 className={`flex items-center gap-2 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                   isActive
                     ? "text-blue-600 border-blue-600 font-semibold"
@@ -294,15 +431,6 @@ export const ProductListPage: React.FC = () => {
                 }`}
               >
                 <span>{tab.label}</span>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    isActive
-                      ? "bg-blue-50 text-blue-600 font-semibold"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {tab.count}
-                </span>
               </button>
             )
           })}
@@ -316,14 +444,11 @@ export const ProductListPage: React.FC = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Tìm theo tên sản phẩm, mã SKU..."
+            placeholder="Tìm theo tên sản phẩm..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-10 pl-10 pr-16 rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 shadow-sm"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 bg-slate-100 border border-slate-200 rounded">
-            Ctrl+K
-          </kbd>
         </div>
 
         {/* Filter Dropdowns */}
@@ -347,7 +472,10 @@ export const ProductListPage: React.FC = () => {
           <div className="relative">
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as any)
+                setCurrentPage(0)
+              }}
               className="h-10 pl-3.5 pr-8 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
             >
               <option value="ALL">Tất cả trạng thái</option>
@@ -361,13 +489,19 @@ export const ProductListPage: React.FC = () => {
           <div className="relative">
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
+              onChange={(e) => {
+                setSortBy(e.target.value as any)
+                setCurrentPage(0)
+              }}
               className="h-10 pl-3.5 pr-8 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
             >
               <option value="NEWEST">Sắp xếp: Mới nhất</option>
+              <option value="OLDEST">Sắp xếp: Cũ nhất</option>
               <option value="PRICE_ASC">Giá tăng dần</option>
               <option value="PRICE_DESC">Giá giảm dần</option>
               <option value="STOCK_DESC">Tồn kho nhiều nhất</option>
+              <option value="NAME_ASC">Tên linh kiện (A → Z)</option>
+              <option value="NAME_DESC">Tên linh kiện (Z → A)</option>
             </select>
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
@@ -375,10 +509,11 @@ export const ProductListPage: React.FC = () => {
           {/* Refresh Button */}
           <button
             onClick={handleResetFilters}
-            className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 shadow-sm transition-colors"
-            title="Làm mới bộ lọc"
+            disabled={isLoading}
+            className="h-10 w-10 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 shadow-sm transition-colors disabled:opacity-50"
+            title="Làm mới bộ lọc và dữ liệu"
           >
-            <RotateCw className="w-4 h-4" />
+            <RotateCw className={`w-4 h-4 ${isLoading ? "animate-spin text-blue-600" : ""}`} />
           </button>
         </div>
       </div>
@@ -401,7 +536,15 @@ export const ProductListPage: React.FC = () => {
       )}
 
       {/* 4. Products Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden relative">
+        {/* Loading overlay nhẹ khi fetching */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center gap-2 text-sm text-blue-600 font-medium">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Đang tải danh sách linh kiện từ máy chủ...</span>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -409,8 +552,8 @@ export const ProductListPage: React.FC = () => {
                 <th className="py-3.5 px-4 w-12 text-center">
                   <Checkbox
                     checked={
-                      filteredProducts.length > 0 &&
-                      selectedIds.length === filteredProducts.length
+                      displayedProducts.length > 0 &&
+                      selectedIds.length === displayedProducts.length
                     }
                     onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
                   />
@@ -425,24 +568,24 @@ export const ProductListPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredProducts.length === 0 ? (
+              {displayedProducts.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400">
                     Không tìm thấy linh kiện máy tính nào phù hợp với bộ lọc.
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
+                displayedProducts.map((product) => {
                   const categoryInfo = renderCategoryInfo(product.category)
                   const isSelected = selectedIds.includes(product.id)
                   const detailInfo = formatDetail(product.category, product.detail)
 
                   // Tìm ảnh primary (hoặc ảnh đầu tiên)
-                  // const primaryImg =
-                  //   product.images?.find((img) => img.primary || img.is_primary) ||
-                  //   product.images?.[0]
-                  const imageSrc = "https://placehold.co/40x40"
-                    // primaryImg?.imageUrl || primaryImg?.image_url || primaryImg?.preview
+                  const primaryImg =
+                    product.images?.find((img) => img.primary || img.is_primary) ||
+                    product.images?.[0]
+                  const imageSrc =
+                    primaryImg?.imageUrl || primaryImg?.image_url || primaryImg?.preview
 
                   return (
                     <tr
@@ -459,7 +602,7 @@ export const ProductListPage: React.FC = () => {
                         />
                       </td>
 
-                      {/* Linh kiện & Mã SKU */}
+                      {/* Tên linh kiện */}
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
                           {imageSrc ? (
@@ -497,10 +640,6 @@ export const ProductListPage: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            {/* <p className="text-xs text-slate-400 mt-0.5">
-                              SKU: {product.sku || product.id.slice(0, 8)} •{" "}
-                              {product.brand || "Chính Hãng"}
-                            </p> */}
                           </div>
                         </div>
                       </td>
@@ -554,15 +693,12 @@ export const ProductListPage: React.FC = () => {
 
                       {/* Trạng thái kích hoạt (active) */}
                       <td className="py-4 px-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleActive(product)}
+                        <div
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold transition ${
                             product.active
-                              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                              : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-slate-100 text-slate-500"
                           }`}
-                          title="Bấm để chuyển trạng thái kích hoạt"
                         >
                           {product.active ? (
                             <>
@@ -573,7 +709,7 @@ export const ProductListPage: React.FC = () => {
                               <EyeOff className="w-3.5 h-3.5 text-slate-400" /> Tạm ngưng
                             </>
                           )}
-                        </button>
+                        </div>
                       </td>
 
                       {/* Thao tác */}
@@ -602,37 +738,45 @@ export const ProductListPage: React.FC = () => {
         {/* 5. Pagination Bar */}
         <div className="px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            Hiển thị <strong>1 - {filteredProducts.length}</strong> trong tổng số{" "}
+            Hiển thị <strong>{displayedProducts.length > 0 ? currentPage * pageSize + 1 : 0} - {currentPage * pageSize + displayedProducts.length}</strong> trong tổng số{" "}
             <strong>{totalElements}</strong> linh kiện
           </div>
 
           <div className="flex items-center gap-1.5">
             <button
-              disabled={currentPage === 0}
+              disabled={currentPage === 0 || isLoading}
               onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
-              className="px-3 py-1.5 border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               ← Trước
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i)}
-                className={`w-8 h-8 rounded-md font-semibold flex items-center justify-center transition-colors ${
-                  currentPage === i
-                    ? "bg-blue-600 text-white"
-                    : "border border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Hiển thị các số trang xung quanh trang hiện tại
+              let pageIdx = i
+              if (totalPages > 5 && currentPage > 2) {
+                pageIdx = Math.min(totalPages - 5, currentPage - 2) + i
+              }
+
+              return (
+                <button
+                  key={pageIdx}
+                  onClick={() => setCurrentPage(pageIdx)}
+                  className={`w-8 h-8 rounded-md font-semibold flex items-center justify-center transition-colors ${
+                    currentPage === pageIdx
+                      ? "bg-blue-600 text-white"
+                      : "border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {pageIdx + 1}
+                </button>
+              )
+            })}
 
             <button
-              disabled={currentPage >= totalPages - 1}
+              disabled={currentPage >= totalPages - 1 || isLoading}
               onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
-              className="px-3 py-1.5 border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               Tiếp →
             </button>

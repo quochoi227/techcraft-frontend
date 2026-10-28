@@ -5,8 +5,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "72a66a99-27bd-4edb-92fb-cd5d4301de69",
       name: "Tản nhiệt khí DeepCool AK600 Digital (Đen / Màn hình hiển thị nhiệt độ)",
-      sku: "CL-DC-AK600-DIG",
-      brand: "DeepCool",
       price: 890000.0,
       stockQuantity: 35,
       category: "CPU_COOLER",
@@ -40,8 +38,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "bfb1c57b-aa19-4d33-b076-4f35b041a3a3",
       name: "Tản nhiệt khí DeepCool AK550 Digital (Đen / Màn hình hiển thị nhiệt độ)",
-      sku: "CL-DC-AK550-DIG",
-      brand: "DeepCool",
       price: 890000.0,
       stockQuantity: 35,
       category: "CPU_COOLER",
@@ -75,8 +71,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "e5a329e1-6efc-497d-a19d-7243b8112180",
       name: "Card màn hình ASUS ROG Strix GeForce RTX 4080 Super OC 16GB",
-      sku: "GPU-ASUS-4080-16G",
-      brand: "ASUS ROG",
       category: "GPU",
       price: 19490000.0,
       stockQuantity: 12,
@@ -110,8 +104,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "f83b23c4-118b-4c48-b4b3-bc42d59103c8",
       name: "CPU Intel Core i7-14700K (20 nhân 28 luồng, up to 5.6GHz)",
-      sku: "CPU-INTEL-14700K",
-      brand: "Intel Box Chính Hãng",
       category: "CPU",
       price: 10890000.0,
       stockQuantity: 8,
@@ -148,8 +140,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "a1c2d3e4-f5b6-4789-8012-3456789abcde",
       name: "RAM Corsair Dominator Titanium RGB 32GB (2x16GB) DDR5 6000MHz",
-      sku: "RAM-COR-32G-6000",
-      brand: "Corsair",
       category: "RAM",
       price: 4250000.0,
       stockQuantity: 24,
@@ -183,8 +173,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "b2c3d4e5-f6a7-4890-9123-456789abcdef",
       name: "Mainboard ASUS ROG MAXIMUS Z790 DARK HERO",
-      sku: "MB-ASUS-Z790-DH",
-      brand: "ASUS ROG",
       category: "MAINBOARD",
       price: 16990000.0,
       stockQuantity: 4,
@@ -221,8 +209,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "c3d4e5f6-a7b8-4901-a234-56789abcdef0",
       name: "Nguồn máy tính Corsair RM850e 850W 80 Plus Gold",
-      sku: "PSU-COR-850E",
-      brand: "Corsair",
       category: "PSU",
       price: 3190000.0,
       stockQuantity: 15,
@@ -255,8 +241,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "d4e5f6a7-b8c9-4012-b345-6789abcdef01",
       name: "Vỏ Case NZXT H9 Flow White Dual-Chamber Mid-Tower",
-      sku: "CASE-NZXT-H9F-WH",
-      brand: "NZXT",
       category: "CASE",
       price: 4190000.0,
       stockQuantity: 6,
@@ -290,8 +274,6 @@ export const MOCK_PRODUCTS_PAGE: PageData<Product> = {
     {
       id: "e5f6a7b8-c9d0-4123-c456-789abcdef012",
       name: "Ổ cứng SSD Samsung 990 PRO 1TB PCIe 4.0 M.2 NVMe",
-      sku: "SSD-SAM-990P-1TB",
-      brand: "Samsung VN",
       category: "STORAGE",
       price: 2890000.0,
       stockQuantity: 0,

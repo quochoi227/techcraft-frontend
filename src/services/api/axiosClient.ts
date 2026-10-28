@@ -100,7 +100,22 @@ axiosClient.interceptors.response.use(
     }
 
     const { status, data } = error.response
-    const errorMessage = data?.message || "Đã xảy ra lỗi không xác định"
+    let errorMessage = data?.message || "Đã xảy ra lỗi không xác định"
+
+    // Bổ sung chi tiết lỗi validation từ trường data nếu backend trả về Map<String, String>
+    if (
+      data?.data &&
+      typeof data.data === "object" &&
+      !Array.isArray(data.data) &&
+      Object.keys(data.data).length > 0
+    ) {
+      const details = Object.entries(data.data)
+        .map(([field, msg]) => `${field}: ${msg}`)
+        .join(", ")
+      if (details) {
+        errorMessage = `${errorMessage} (${details})`
+      }
+    }
 
     // ------------------------------------------------------------------
     // XỬ LÝ LỖI 401 UNAUTHORIZED (Cơ chế Silent Refresh Token)
