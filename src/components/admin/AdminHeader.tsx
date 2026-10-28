@@ -1,18 +1,42 @@
 import React from "react"
 import { Bell } from "lucide-react"
+import { useLocation, Link } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 
 interface AdminHeaderProps {
   breadcrumbs?: { label: string; href?: string }[]
 }
 
-export const AdminHeader: React.FC<AdminHeaderProps> = ({
-  breadcrumbs = [
-    { label: "Admin Portal", href: "/admin" },
-    { label: "Quản lý sản phẩm" },
-  ],
-}) => {
+const ROUTE_LABELS: Record<string, string> = {
+  "/admin": "Admin Portal",
+  "/admin/products": "Quản lý sản phẩm",
+  "/admin/dashboard": "Tổng quan & Thống kê",
+  "/admin/orders": "Quản lý đơn hàng",
+  "/admin/pc-cases": "Quản lý PC Cases",
+  "/admin/rag-ai": "Tài liệu RAG & AI",
+  "/admin/users": "Quản lý người dùng",
+}
+
+export const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumbs }) => {
+  const location = useLocation()
   const user = useAuthStore((state) => state.user)
+
+  // Tự động nhận diện breadcrumbs từ URL hiện tại nếu không truyền props
+  const effectiveBreadcrumbs = React.useMemo(() => {
+    if (breadcrumbs && breadcrumbs.length > 0) return breadcrumbs
+
+    const path = location.pathname
+    const currentLabel = ROUTE_LABELS[path] || "Quản lý hệ thống"
+
+    if (path === "/admin") {
+      return [{ label: "Admin Portal", href: "/admin" }]
+    }
+
+    return [
+      { label: "Admin Portal", href: "/admin" },
+      { label: currentLabel },
+    ]
+  }, [breadcrumbs, location.pathname])
 
   const displayName = user?.fullName || "Trần Minh Quản Trị"
   const displayRole = user?.role || "SUPER_ADMIN"
@@ -28,11 +52,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-40">
       {/* Breadcrumb */}
       <nav className="flex items-center text-sm font-medium">
-        {breadcrumbs.map((crumb, idx) => (
+        {effectiveBreadcrumbs.map((crumb, idx) => (
           <React.Fragment key={crumb.label}>
             {idx > 0 && <span className="mx-2 text-slate-400">/</span>}
-            {idx === breadcrumbs.length - 1 ? (
+            {idx === effectiveBreadcrumbs.length - 1 ? (
               <span className="text-slate-800 font-semibold">{crumb.label}</span>
+            ) : crumb.href ? (
+              <Link to={crumb.href} className="text-slate-400 hover:text-slate-600 transition-colors">
+                {crumb.label}
+              </Link>
             ) : (
               <span className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 {crumb.label}
@@ -75,3 +103,4 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     </header>
   )
 }
+
