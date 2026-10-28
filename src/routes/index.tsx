@@ -3,6 +3,7 @@ import { MainLayout } from "@/components/layout/MainLayout"
 import { AdminLayout } from "@/components/layout/AdminLayout"
 import { RegisterPage } from "@/pages/auth/RegisterPage"
 import { LoginPage } from "@/pages/auth/LoginPage"
+import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage"
 import { HomePage } from "@/pages/home/HomePage"
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage"
 import { ProductListPage } from "@/pages/admin/products/ProductListPage"
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: "login",
         element: <LoginPage />,
+      },
+      {
+        path: "verify-email",
+        element: <VerifyEmailPage />,
       },
     ],
   },

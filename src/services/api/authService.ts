@@ -1,6 +1,10 @@
 import axiosClient from "./axiosClient"
 import type { ApiResponse } from "@/types/product"
-import type { AuthResponseData, RefreshTokenResponseData } from "@/types/auth"
+import type {
+  AuthResponseData,
+  RefreshTokenResponseData,
+  RegisterResponseData,
+} from "@/types/auth"
 
 export interface LoginRequest {
   email: string
@@ -10,15 +14,16 @@ export interface LoginRequest {
 export interface RegisterRequest {
   fullName: string
   email: string
-  phone: string
+  phone?: string
   password: string
+  address?: string
 }
 
 export const authService = {
   /**
    * Đăng ký tài khoản người dùng mới
    */
-  register: async (payload: RegisterRequest): Promise<ApiResponse<null>> => {
+  register: async (payload: RegisterRequest): Promise<ApiResponse<RegisterResponseData>> => {
     return axiosClient.post("/auth/register", payload)
   },
 

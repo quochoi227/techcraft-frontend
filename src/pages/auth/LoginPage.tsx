@@ -1,9 +1,9 @@
 import React, { useState } from "react"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Send } from "lucide-react"
+import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Send, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,8 +32,19 @@ export const LoginPage: React.FC = () => {
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
 
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const redirectUrl = searchParams.get("redirect")
+
+  const locationState = location.state as {
+    email?: string
+    registered?: boolean
+    verified?: boolean
+  } | null
+
+  const registeredEmail = locationState?.email || ""
+  const isRegisteredSuccess = Boolean(locationState?.registered)
+  const isVerifiedSuccess = Boolean(locationState?.verified)
 
   const setAuth = useAuthStore((state) => state.setAuth)
 
@@ -44,7 +55,7 @@ export const LoginPage: React.FC = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      email: registeredEmail,
       password: "",
     },
   })
@@ -138,6 +149,38 @@ export const LoginPage: React.FC = () => {
             Chào mừng bạn quay trở lại với TechCraft PC
           </p>
         </div>
+
+        {/* Thông báo xác thực email thành công */}
+        {isVerifiedSuccess && (
+          <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1.5 animate-in fade-in flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-900">
+                Xác thực email thành công!
+              </p>
+              <p className="text-emerald-700 leading-relaxed">
+                Tài khoản của bạn đã được kích hoạt thành công. Vui lòng đăng nhập để bắt đầu trải nghiệm.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Thông báo đăng ký thành công điều hướng sang */}
+        {isRegisteredSuccess && !unverifiedEmail && !isVerifiedSuccess && (
+          <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1.5 animate-in fade-in flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-900">
+                Đăng ký tài khoản thành công!
+              </p>
+              <p className="text-emerald-700 leading-relaxed">
+                Hệ thống đã gửi liên kết xác thực đến{" "}
+                <span className="font-medium text-emerald-900">{registeredEmail}</span>.
+                Vui lòng kiểm tra hộp thư và xác thực trước khi đăng nhập.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Thông báo nếu tài khoản chưa xác thực email */}
         {unverifiedEmail && (
