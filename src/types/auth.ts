@@ -19,3 +19,13 @@ export interface AuthResponseData {
 export interface RefreshTokenResponseData {
   accessToken: string
 }
+
+export interface RegisterResponseData {
+  id: string
+  email: string
+  fullName: string
+  phone?: string
+  address?: string
+  role: UserRole
+  emailVerified: boolean
+}
