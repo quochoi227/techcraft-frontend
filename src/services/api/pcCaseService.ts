@@ -35,7 +35,7 @@ export const pcCaseService = {
    * Endpoint: GET /admin/pc-cases/:id hoặc GET /pc-cases/:id
    */
   getPcCaseById: async (id: string): Promise<ApiResponse<PcCase>> => {
-    return axiosClient.get(`/admin/pc-cases/${id}`)
+    return axiosClient.get(`/pc-cases/${id}`)
   },
 
   /**
