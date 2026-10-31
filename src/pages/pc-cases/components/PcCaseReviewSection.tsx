@@ -20,7 +20,7 @@ export const PcCaseReviewSection: React.FC<PcCaseReviewSectionProps> = ({
   pcCaseId,
   pcCaseName,
   reviews = [],
-  averageRating = 5.0,
+  averageRating,
   totalReviews = 0,
   onReviewAdded,
 }) => {
@@ -35,6 +35,17 @@ export const PcCaseReviewSection: React.FC<PcCaseReviewSectionProps> = ({
   // Local reviews list state so newly submitted review shows up immediately
   const [localReviews, setLocalReviews] = useState<Review[]>(reviews)
 
+  const effectiveTotal = localReviews.length > 0 ? localReviews.length : totalReviews
+  const hasReviews = effectiveTotal > 0
+
+  // Calculate average rating dynamically from localReviews if available, else from prop averageRating
+  const effectiveAverageRating =
+    localReviews.length > 0
+      ? localReviews.reduce((sum, r) => sum + (r.rating || 5), 0) / localReviews.length
+      : typeof averageRating === "number" && averageRating > 0
+      ? averageRating
+      : 0
+
   // Calculate rating distribution
   const ratingCounts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
   localReviews.forEach((r) => {
@@ -42,7 +53,7 @@ export const PcCaseReviewSection: React.FC<PcCaseReviewSectionProps> = ({
     ratingCounts[star] = (ratingCounts[star] || 0) + 1
   })
 
-  const countTotal = localReviews.length || totalReviews || 1
+  const countTotal = effectiveTotal || 1
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,32 +106,54 @@ export const PcCaseReviewSection: React.FC<PcCaseReviewSectionProps> = ({
       <div className="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-200/90 flex flex-col md:flex-row items-center gap-8">
         {/* Score & Stars */}
         <div className="text-center md:text-left shrink-0 md:pr-8 md:border-r border-slate-200 space-y-2">
-          <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            {averageRating ? averageRating.toFixed(1) : "5.0"}
-            <span className="text-xl sm:text-2xl font-bold text-slate-400">/5</span>
-          </div>
-          <div className="flex items-center justify-center md:justify-start gap-1 text-amber-400">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`w-5 h-5 ${
-                  star <= Math.round(averageRating || 5)
-                    ? "fill-amber-400 text-amber-400"
-                    : "fill-slate-200 text-slate-200"
-                }`}
-              />
-            ))}
-          </div>
-          <p className="text-xs text-slate-500 font-medium">
-            Dựa trên {localReviews.length || totalReviews || 0} lượt trải nghiệm cấu hình
-          </p>
+          {hasReviews ? (
+            <>
+              <div className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                {effectiveAverageRating.toFixed(1)}
+                <span className="text-xl sm:text-2xl font-bold text-slate-400">/5</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-1 text-amber-400">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`w-5 h-5 ${
+                      star <= Math.round(effectiveAverageRating)
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-slate-200 text-slate-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-slate-500 font-medium">
+                Dựa trên {effectiveTotal} lượt trải nghiệm cấu hình
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="text-4xl sm:text-5xl font-black text-slate-400 tracking-tight">
+                0.0
+                <span className="text-xl sm:text-2xl font-bold text-slate-300">/5</span>
+              </div>
+              <div className="flex items-center justify-center md:justify-start gap-1 text-slate-200">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className="w-5 h-5 fill-slate-100 text-slate-200"
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-slate-400 font-medium">
+                Chưa có lượt đánh giá nào
+              </p>
+            </>
+          )}
         </div>
 
         {/* Rating Breakdown Bars */}
         <div className="flex-1 w-full space-y-2">
           {[5, 4, 3, 2, 1].map((star) => {
             const count = ratingCounts[star] || 0
-            const percentage = countTotal > 0 ? Math.round((count / countTotal) * 100) : 0
+            const percentage = hasReviews && countTotal > 0 ? Math.round((count / countTotal) * 100) : 0
             return (
               <div key={star} className="flex items-center gap-3 text-xs">
                 <span className="w-12 font-semibold text-slate-600 flex items-center gap-1">

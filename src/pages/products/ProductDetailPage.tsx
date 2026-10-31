@@ -149,6 +149,8 @@ export const ProductDetailPage: React.FC = () => {
   const formattedSpecs = formatDetail(product.category, product.detail)
   const inStock = (product.stockQuantity ?? 0) > 0
   const maxStock = product.stockQuantity ?? 1
+  const totalReviewsCount = product.totalReviews ?? product.reviews?.length ?? 0
+  const hasReviews = totalReviewsCount > 0 && typeof product.averageRating === "number" && product.averageRating > 0
 
   const imagesList =
     product.images && product.images.length > 0
@@ -343,35 +345,63 @@ export const ProductDetailPage: React.FC = () => {
               </h1>
 
               {/* Rating & Review summary */}
-              <div className="flex items-center gap-3 mt-3 text-xs">
-                <div className="flex items-center text-amber-400">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i <= Math.round(product.averageRating || 5)
-                          ? "fill-amber-400 text-amber-400"
-                          : "fill-slate-200 text-slate-200"
-                      }`}
-                    />
-                  ))}
+              {hasReviews ? (
+                <div className="flex items-center gap-3 mt-3 text-xs">
+                  <div className="flex items-center text-amber-400">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i <= Math.round(product.averageRating || 0)
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-slate-200 text-slate-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="font-bold text-slate-800 text-sm">
+                    {product.averageRating!.toFixed(1)}
+                  </span>
+                  <span className="text-slate-400">•</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("reviews")
+                      const el = document.getElementById("product-tabs")
+                      el?.scrollIntoView({ behavior: "smooth" })
+                    }}
+                    className="text-blue-600 font-bold hover:underline"
+                  >
+                    {totalReviewsCount} đánh giá của khách hàng
+                  </button>
                 </div>
-                <span className="font-bold text-slate-800 text-sm">
-                  {product.averageRating ? product.averageRating.toFixed(1) : "5.0"}
-                </span>
-                <span className="text-slate-400">•</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab("reviews")
-                    const el = document.getElementById("product-tabs")
-                    el?.scrollIntoView({ behavior: "smooth" })
-                  }}
-                  className="text-blue-600 font-bold hover:underline"
-                >
-                  {product.totalReviews ?? product.reviews?.length ?? 12} đánh giá của khách hàng
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center gap-3 mt-3 text-xs">
+                  <div className="flex items-center text-slate-200">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 fill-slate-100 text-slate-200"
+                      />
+                    ))}
+                  </div>
+                  <span className="text-slate-500 font-medium">
+                    Chưa có đánh giá
+                  </span>
+                  <span className="text-slate-400">•</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("reviews")
+                      const el = document.getElementById("product-tabs")
+                      el?.scrollIntoView({ behavior: "smooth" })
+                    }}
+                    className="text-blue-600 font-semibold hover:underline"
+                  >
+                    Hãy là người đánh giá đầu tiên
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Price Box */}
@@ -540,7 +570,7 @@ export const ProductDetailPage: React.FC = () => {
                 <MessageSquare className="w-4 h-4" />
                 <span>Đánh giá từ khách hàng</span>
                 <span className="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                  {product.totalReviews ?? product.reviews?.length ?? 12}
+                  {totalReviewsCount}
                 </span>
               </button>
 

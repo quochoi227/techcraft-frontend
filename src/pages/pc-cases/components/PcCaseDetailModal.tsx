@@ -141,26 +141,44 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
               {pcCase.name}
             </h2>
 
-            <div className="flex items-center gap-2 text-xs">
-              <div className="flex items-center text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-4 h-4 ${
-                      i < Math.round(pcCase.averageRating || 5)
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-slate-200 text-slate-200"
-                    }`}
-                  />
-                ))}
+            {((pcCase.totalReviews ?? pcCase.reviews?.length ?? 0) > 0 &&
+              typeof pcCase.averageRating === "number" &&
+              pcCase.averageRating > 0) ? (
+              <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < Math.round(pcCase.averageRating || 0)
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-slate-200 text-slate-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="font-bold text-slate-700 text-sm">
+                  {pcCase.averageRating.toFixed(1)}
+                </span>
+                <span className="text-slate-400">
+                  ({pcCase.totalReviews ?? pcCase.reviews?.length} lượt đánh giá)
+                </span>
               </div>
-              <span className="font-bold text-slate-700 text-sm">
-                {pcCase.averageRating ? pcCase.averageRating.toFixed(1) : "5.0"}
-              </span>
-              <span className="text-slate-400">
-                ({pcCase.totalReviews ?? 15} lượt đánh giá)
-              </span>
-            </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center text-slate-200">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-slate-100 text-slate-200"
+                    />
+                  ))}
+                </div>
+                <span className="text-slate-400 font-medium">
+                  Chưa có đánh giá
+                </span>
+              </div>
+            )}
 
             {pcCase.description && (
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-1">

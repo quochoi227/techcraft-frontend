@@ -44,6 +44,8 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
   const UseCaseIcon = useCaseMeta?.icon
   const stock = calculatePcCaseStock(pcCase)
   const inStock = stock > 0
+  const totalReviewsCount = pcCase.totalReviews ?? pcCase.reviews?.length ?? 0
+  const hasReviews = totalReviewsCount > 0 && typeof pcCase.averageRating === "number" && pcCase.averageRating > 0
 
   // Trích xuất linh kiện chính để hiển thị thông số nhanh
   const cpu = getComponentByCategory(pcCase, "CPU")
@@ -138,7 +140,23 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
                 </span>
               )}
 
-              <span className="inline-flex items-center gap-1 text-[11px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60 ml-auto">
+              {/* Rating */}
+              {hasReviews ? (
+                <div className="flex items-center gap-1 text-xs text-amber-500 ml-auto">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span className="font-semibold text-slate-700">
+                    {pcCase.averageRating!.toFixed(1)}
+                  </span>
+                  <span className="text-slate-400">({totalReviewsCount})</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-slate-400 ml-auto">
+                  <Star className="w-3.5 h-3.5 text-slate-300" />
+                  <span className="text-slate-400">Chưa có đánh giá</span>
+                </div>
+              )}
+
+              <span className="inline-flex items-center gap-1 text-[11px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/60">
                 <CheckCircle2 className="w-3 h-3" /> Tương thích 100%
               </span>
             </div>
@@ -300,26 +318,42 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* Star Rating */}
-          <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1.5">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${
-                    i < Math.round(pcCase.averageRating || 5)
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-slate-200 text-slate-200"
-                  }`}
-                />
-              ))}
+          {hasReviews ? (
+            <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1.5">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 ${
+                      i < Math.round(pcCase.averageRating || 0)
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-slate-200 text-slate-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-bold text-slate-700 text-[11px]">
+                {pcCase.averageRating!.toFixed(1)}
+              </span>
+              <span className="text-slate-400 text-[11px]">
+                ({totalReviewsCount})
+              </span>
             </div>
-            <span className="font-bold text-slate-700 text-[11px]">
-              {pcCase.averageRating ? pcCase.averageRating.toFixed(1) : "5.0"}
-            </span>
-            <span className="text-slate-400 text-[11px]">
-              ({pcCase.totalReviews ?? 15})
-            </span>
-          </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1.5">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-3 h-3 fill-slate-100 text-slate-200"
+                  />
+                ))}
+              </div>
+              <span className="text-[11px] text-slate-400 font-medium">
+                Chưa có đánh giá
+              </span>
+            </div>
+          )}
 
           {/* Title */}
           <h3

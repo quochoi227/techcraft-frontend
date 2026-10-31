@@ -74,6 +74,48 @@ export const PcCaseDetailPage: React.FC = () => {
 
   const addPcCaseToCart = useCartStore((state) => state.addPcCase)
 
+  // Build high-res gallery list from PC Case shell and all included components
+  const buildGallery = (data: PcCase) => {
+    const list: GalleryItem[] = []
+
+    // 1. Primary Case Image
+    const caseProd = getComponentByCategory(data, "CASE")
+    const primaryCaseImg =
+      caseProd?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
+      caseProd?.images?.[0]?.imageUrl ||
+      PREBUILT_PC_IMAGE
+
+    list.push({
+      id: "shell",
+      label: "Tổng quan dàn PC",
+      category: "Toàn bộ máy",
+      imageUrl: primaryCaseImg,
+      productName: data.name,
+    })
+
+    // 2. Component Images
+    data.items?.forEach((item) => {
+      if (item.category !== "CASE" && item.product) {
+        const img =
+          item.product.images?.find((i) => i.primary || i.isPrimary)?.imageUrl ||
+          item.product.images?.[0]?.imageUrl
+
+        if (img) {
+          const meta = CATEGORIES_META[item.category]
+          list.push({
+            id: item.id || item.category,
+            label: meta?.shortLabel || item.category,
+            category: item.category,
+            imageUrl: img,
+            productName: item.product.name,
+          })
+        }
+      }
+    })
+
+    setGalleryImages(list.length > 0 ? list : [{ id: "def", label: "PC", imageUrl: PREBUILT_PC_IMAGE }])
+  }
+
   // Fetch PC Case detail by ID
   useEffect(() => {
     let isMounted = true
@@ -120,48 +162,6 @@ export const PcCaseDetailPage: React.FC = () => {
       isMounted = false
     }
   }, [id])
-
-  // Build high-res gallery list from PC Case shell and all included components
-  const buildGallery = (data: PcCase) => {
-    const list: GalleryItem[] = []
-
-    // 1. Primary Case Image
-    const caseProd = getComponentByCategory(data, "CASE")
-    const primaryCaseImg =
-      caseProd?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
-      caseProd?.images?.[0]?.imageUrl ||
-      PREBUILT_PC_IMAGE
-
-    list.push({
-      id: "shell",
-      label: "Tổng quan dàn PC",
-      category: "Toàn bộ máy",
-      imageUrl: primaryCaseImg,
-      productName: data.name,
-    })
-
-    // 2. Component Images
-    data.items?.forEach((item) => {
-      if (item.category !== "CASE" && item.product) {
-        const img =
-          item.product.images?.find((i) => i.primary || i.isPrimary)?.imageUrl ||
-          item.product.images?.[0]?.imageUrl
-
-        if (img) {
-          const meta = CATEGORIES_META[item.category]
-          list.push({
-            id: item.id || item.category,
-            label: meta?.shortLabel || item.category,
-            category: item.category,
-            imageUrl: img,
-            productName: item.product.name,
-          })
-        }
-      }
-    })
-
-    setGalleryImages(list.length > 0 ? list : [{ id: "def", label: "PC", imageUrl: PREBUILT_PC_IMAGE }])
-  }
 
   if (isLoading) {
     return (
@@ -210,6 +210,8 @@ export const PcCaseDetailPage: React.FC = () => {
   const stock = calculatePcCaseStock(pcCase)
   const inStock = stock > 0
   const maxStock = Math.max(1, stock)
+  const totalReviewsCount = pcCase.totalReviews ?? pcCase.reviews?.length ?? 0
+  const hasReviews = totalReviewsCount > 0 && typeof pcCase.averageRating === "number" && pcCase.averageRating > 0
 
   // Main specs shortcuts
   const cpu = getComponentByCategory(pcCase, "CPU")
@@ -431,31 +433,55 @@ export const PcCaseDetailPage: React.FC = () => {
               </div>
 
               {/* Star Rating & Reviews */}
-              <div className="flex items-center gap-3 pb-4 border-b border-slate-100 text-xs">
-                <div className="flex items-center gap-1 text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < Math.round(pcCase.averageRating || 5)
-                          ? "fill-amber-400 text-amber-400"
-                          : "fill-slate-200 text-slate-200"
-                      }`}
-                    />
-                  ))}
-                  <span className="font-bold text-slate-700 ml-1">
-                    {pcCase.averageRating ? pcCase.averageRating.toFixed(1) : "5.0"}
-                  </span>
+              {hasReviews ? (
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 text-xs">
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < Math.round(pcCase.averageRating || 0)
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-slate-200 text-slate-200"
+                        }`}
+                      />
+                    ))}
+                    <span className="font-bold text-slate-700 ml-1">
+                      {pcCase.averageRating!.toFixed(1)}
+                    </span>
+                  </div>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("reviews")}
+                    className="text-purple-600 font-semibold hover:underline"
+                  >
+                    {totalReviewsCount} đánh giá khách hàng
+                  </button>
                 </div>
-                <span className="text-slate-300">|</span>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("reviews")}
-                  className="text-purple-600 font-semibold hover:underline"
-                >
-                  {pcCase.totalReviews ?? 18} đánh giá khách hàng
-                </button>
-              </div>
+              ) : (
+                <div className="flex items-center gap-3 pb-4 border-b border-slate-100 text-xs">
+                  <div className="flex items-center gap-1 text-slate-200">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 fill-slate-100 text-slate-200"
+                      />
+                    ))}
+                    <span className="font-medium text-slate-400 ml-1">
+                      Chưa có đánh giá
+                    </span>
+                  </div>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("reviews")}
+                    className="text-purple-600 font-semibold hover:underline"
+                  >
+                    Hãy là người đánh giá đầu tiên
+                  </button>
+                </div>
+              )}
 
               {/* Price Area */}
               <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-1">
@@ -804,7 +830,7 @@ export const PcCaseDetailPage: React.FC = () => {
               }`}
             >
               <MessageSquare className="w-4 h-4 text-purple-600" />
-              Đánh giá ({pcCase.reviews?.length || pcCase.totalReviews || 0})
+              Đánh giá ({totalReviewsCount})
             </button>
 
             <button

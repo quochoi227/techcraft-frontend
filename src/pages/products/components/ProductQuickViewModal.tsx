@@ -208,26 +208,44 @@ export const ProductQuickViewModal: React.FC<ProductQuickViewModalProps> = ({
                 </h2>
 
                 {/* Rating */}
-                <div className="flex items-center gap-2 mt-2 text-xs">
-                  <div className="flex items-center text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.round(product.averageRating || 5)
-                            ? "fill-amber-400 text-amber-400"
-                            : "fill-slate-200 text-slate-200"
-                        }`}
-                      />
-                    ))}
+                {((product.totalReviews ?? product.reviews?.length ?? 0) > 0 &&
+                  typeof product.averageRating === "number" &&
+                  product.averageRating > 0) ? (
+                  <div className="flex items-center gap-2 mt-2 text-xs">
+                    <div className="flex items-center text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < Math.round(product.averageRating || 0)
+                              ? "fill-amber-400 text-amber-400"
+                              : "fill-slate-200 text-slate-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="font-bold text-slate-700 text-sm">
+                      {product.averageRating.toFixed(1)}
+                    </span>
+                    <span className="text-slate-400">
+                      ({product.totalReviews ?? product.reviews?.length} lượt đánh giá)
+                    </span>
                   </div>
-                  <span className="font-bold text-slate-700 text-sm">
-                    {product.averageRating ? product.averageRating.toFixed(1) : "5.0"}
-                  </span>
-                  <span className="text-slate-400">
-                    ({product.totalReviews ?? 12} lượt đánh giá)
-                  </span>
-                </div>
+                ) : (
+                  <div className="flex items-center gap-2 mt-2 text-xs">
+                    <div className="flex items-center text-slate-200">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-slate-100 text-slate-200"
+                        />
+                      ))}
+                    </div>
+                    <span className="text-slate-400 font-medium">
+                      Chưa có đánh giá
+                    </span>
+                  </div>
+                )}
 
                 {/* Price */}
                 <div className="mt-4 p-4 rounded-xl bg-blue-50/60 border border-blue-100">

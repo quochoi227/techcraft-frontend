@@ -39,6 +39,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const CategoryIcon = categoryMeta?.icon
   const formattedSpecs = formatDetail(product.category, product.detail)
   const inStock = (product.stockQuantity ?? 0) > 0
+  const totalReviewsCount = product.totalReviews ?? product.reviews?.length ?? 0
+  const hasReviews = totalReviewsCount > 0 && typeof product.averageRating === "number" && product.averageRating > 0
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -127,13 +129,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               )}
 
               {/* Star Rating */}
-              <div className="flex items-center gap-1 text-xs text-amber-500 ml-auto">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span className="font-semibold text-slate-700">
-                  {product.averageRating ? product.averageRating.toFixed(1) : "5.0"}
-                </span>
-                <span className="text-slate-400">({product.totalReviews ?? 12})</span>
-              </div>
+              {hasReviews ? (
+                <div className="flex items-center gap-1 text-xs text-amber-500 ml-auto">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span className="font-semibold text-slate-700">
+                    {product.averageRating!.toFixed(1)}
+                  </span>
+                  <span className="text-slate-400">({totalReviewsCount})</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-slate-400 ml-auto">
+                  <Star className="w-3.5 h-3.5 text-slate-300" />
+                  <span className="text-slate-400">Chưa có đánh giá</span>
+                </div>
+              )}
             </div>
 
             {/* Product Name */}
@@ -269,26 +278,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
           {/* Star Rating */}
-          <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1.5">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-3 h-3 ${
-                    i < Math.round(product.averageRating || 5)
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-slate-200 text-slate-200"
-                  }`}
-                />
-              ))}
+          {hasReviews ? (
+            <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1.5">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 ${
+                      i < Math.round(product.averageRating || 0)
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-slate-200 text-slate-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-bold text-slate-700 text-[11px]">
+                {product.averageRating!.toFixed(1)}
+              </span>
+              <span className="text-slate-400 text-[11px]">
+                ({totalReviewsCount})
+              </span>
             </div>
-            <span className="font-bold text-slate-700 text-[11px]">
-              {product.averageRating ? product.averageRating.toFixed(1) : "5.0"}
-            </span>
-            <span className="text-slate-400 text-[11px]">
-              ({product.totalReviews ?? 12})
-            </span>
-          </div>
+          ) : (
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1.5">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-3 h-3 fill-slate-100 text-slate-200"
+                  />
+                ))}
+              </div>
+              <span className="text-[11px] text-slate-400 font-medium">
+                Chưa có đánh giá
+              </span>
+            </div>
+          )}
 
           {/* Title */}
           <h3
