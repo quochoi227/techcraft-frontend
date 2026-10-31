@@ -6,6 +6,11 @@ import { LoginPage } from "@/pages/auth/LoginPage"
 import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage"
 import { HomePage } from "@/pages/home/HomePage"
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage"
+import { ProductListPage as UserProductListPage } from "@/pages/products/ProductListPage"
+import { ProductDetailPage } from "@/pages/products/ProductDetailPage"
+import { CartPage } from "@/pages/cart/CartPage"
+import { PcCaseListPage as UserPcCaseListPage } from "@/pages/pc-cases/PcCaseListPage"
+import { PcCaseDetailPage } from "@/pages/pc-cases/PcCaseDetailPage"
 import { ProductListPage } from "@/pages/admin/products/ProductListPage"
 import { DashboardPage } from "@/pages/admin/dashboard/DashboardPage"
 import { OrderListPage } from "@/pages/admin/orders/OrderListPage"
@@ -34,6 +39,26 @@ export const router = createBrowserRouter([
       {
         path: "verify-email",
         element: <VerifyEmailPage />,
+      },
+      {
+        path: "products",
+        element: <UserProductListPage />,
+      },
+      {
+        path: "products/:id",
+        element: <ProductDetailPage />,
+      },
+      {
+        path: "pc-cases",
+        element: <UserPcCaseListPage />,
+      },
+      {
+        path: "pc-cases/:id",
+        element: <PcCaseDetailPage />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
       },
     ],
   },

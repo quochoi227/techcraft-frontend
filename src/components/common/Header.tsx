@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom"
 import { Cpu, Search, ShoppingCart, Menu, X, LogOut, ShieldCheck, User as UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/authStore"
+import { useCartStore } from "@/stores/cartStore"
 import { authService } from "@/services/api/authService"
 import { toast } from "sonner"
 
@@ -12,6 +13,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate()
 
   const { user, isAuthenticated, clearAuth } = useAuthStore()
+  const cartCount = useCartStore((state) => state.getTotalCount())
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,6 +80,18 @@ export const Header: React.FC = () => {
                 Sản phẩm
               </NavLink>
               <NavLink
+                to="/pc-cases"
+                className={({ isActive }) =>
+                  `transition-colors hover:text-blue-600 py-1 ${
+                    isActive
+                      ? "text-blue-600 font-semibold border-b-2 border-blue-600"
+                      : "text-slate-600"
+                  }`
+                }
+              >
+                Cấu hình PC
+              </NavLink>
+              <NavLink
                 to="/ai-consultant"
                 className={({ isActive }) =>
                   `transition-colors hover:text-blue-600 ${
@@ -113,8 +127,12 @@ export const Header: React.FC = () => {
               title="Giỏ hàng"
             >
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
-                3
+              <span
+                className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center transition-all duration-200 ${
+                  cartCount > 0 ? "opacity-100 scale-100" : "opacity-0 scale-75 pointer-events-none"
+                }`}
+              >
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
             </Link>
 
@@ -218,6 +236,13 @@ export const Header: React.FC = () => {
                 className="px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700"
               >
                 Sản phẩm
+              </Link>
+              <Link
+                to="/pc-cases"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700"
+              >
+                Cấu hình PC
               </Link>
               <Link
                 to="/ai-consultant"

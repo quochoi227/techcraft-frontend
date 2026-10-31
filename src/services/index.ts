@@ -3,4 +3,6 @@ export * from "./api/authService"
 export * from "./api/productService"
 export * from "./api/imageService"
 export * from "./api/pcCaseService"
+export * from "./api/cartService"
+export * from "./api/reviewService"
 

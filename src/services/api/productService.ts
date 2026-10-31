@@ -18,6 +18,9 @@ export interface ProductQueryParams {
   keyword?: string
   name?: string
   isActive?: boolean
+  minPrice?: number
+  maxPrice?: number
+  inStock?: boolean
   sortBy?: "createdAt" | "price" | "name" | "stockQuantity" | "updatedAt" | string
   sortDir?: "asc" | "desc"
   sort?: string
