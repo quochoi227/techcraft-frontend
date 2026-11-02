@@ -304,9 +304,9 @@ export const CheckoutPage: React.FC = () => {
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 shadow-sm"
               asChild
             >
-              <Link to="/products">
+              <Link to="/orders">
                 <Box className="w-4 h-4" />
-                <span>Tiếp tục mua linh kiện khác</span>
+                <span>Xem lịch sử đơn hàng</span>
               </Link>
             </Button>
             <Button
@@ -315,9 +315,20 @@ export const CheckoutPage: React.FC = () => {
               className="flex-1 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold gap-2"
               asChild
             >
+              <Link to="/products">
+                <Box className="w-4 h-4" />
+                <span>Tiếp tục mua sắm</span>
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-slate-200 text-slate-700 hover:bg-slate-50 font-bold gap-2 px-4"
+              asChild
+            >
               <Link to="/">
                 <Home className="w-4 h-4" />
-                <span>Về trang chủ</span>
+                <span>Trang chủ</span>
               </Link>
             </Button>
           </div>

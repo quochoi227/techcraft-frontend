@@ -4,6 +4,7 @@ import type {
   Order,
   CreateOrderPayload,
   OrderFilterParams,
+  PageResponse,
 } from "@/types/order"
 
 export const orderService = {
@@ -23,8 +24,13 @@ export const orderService = {
    */
   getUserOrders: async (
     params?: OrderFilterParams
-  ): Promise<ApiResponse<{ content: Order[]; totalElements: number; totalPages: number }>> => {
-    return axiosClient.get("/orders", { params })
+  ): Promise<ApiResponse<PageResponse<Order>>> => {
+    // If status is "ALL", omit it from params sent to backend
+    const cleanParams: any = { ...params }
+    if (cleanParams.status === "ALL") {
+      delete cleanParams.status
+    }
+    return axiosClient.get("/orders", { params: cleanParams })
   },
 
   /**
