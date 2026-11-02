@@ -24,6 +24,8 @@ import { productService } from "@/services/api/productService"
 import { MOCK_PRODUCTS } from "@/pages/admin/products/mockData"
 import { CATEGORIES_META, formatPrice, formatDetail } from "./constants"
 import { useCartStore } from "@/stores/cartStore"
+import { useCheckoutStore } from "@/stores/checkoutStore"
+import type { CheckoutItem } from "@/types/order"
 import { ProductReviewSection } from "./components/ProductReviewSection"
 import { RelatedProducts } from "./components/RelatedProducts"
 import { Button } from "@/components/ui/button"
@@ -52,6 +54,7 @@ export const ProductDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"specs" | "desc" | "reviews" | "policy">("specs")
 
   const addProductToCart = useCartStore((state) => state.addProduct)
+  const setCheckoutItems = useCheckoutStore((state) => state.setCheckoutItems)
 
   // Fetch product data on ID change
   useEffect(() => {
@@ -181,19 +184,32 @@ export const ProductDetailPage: React.FC = () => {
     }
   }
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!inStock) {
       toast.error("Linh kiện này hiện đang tạm hết hàng!")
       return
     }
 
-    try {
-      await addProductToCart(product, quantity)
-      navigate("/cart")
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Không thể tiến hành mua ngay"
-      toast.error(msg)
+    const primaryImage =
+      product.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
+      product.images?.[0]?.imageUrl ||
+      PLACEHOLDER_IMAGE
+
+    const checkoutItem: CheckoutItem = {
+      itemType: "PRODUCT",
+      productId: product.id,
+      productName: product.name,
+      productPrice: product.price,
+      productImage: primaryImage,
+      category: product.category,
+      product,
+      unitPrice: product.price,
+      quantity,
+      stockQuantity: product.stockQuantity ?? 1,
     }
+
+    setCheckoutItems([checkoutItem])
+    navigate("/checkout")
   }
 
   return (
