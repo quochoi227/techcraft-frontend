@@ -18,12 +18,16 @@ import {
   Cpu,
   Layers,
   Box,
+  CheckSquare,
 } from "lucide-react"
 import { useCartStore } from "@/stores/cartStore"
 import { useAuthStore } from "@/stores/authStore"
+import { useCheckoutStore } from "@/stores/checkoutStore"
 import type { CartItem } from "@/types/cart"
+import type { CheckoutItem } from "@/types/order"
 import { CATEGORIES_META, formatPrice } from "@/pages/products/constants"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
 
 const PLACEHOLDER_IMAGE =
@@ -32,6 +36,7 @@ const PLACEHOLDER_IMAGE =
 export const CartPage: React.FC = () => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
+  const setCheckoutItems = useCheckoutStore((state) => state.setCheckoutItems)
   const {
     items,
     isLoading,
@@ -41,13 +46,15 @@ export const CartPage: React.FC = () => {
     removeItem,
     clearCart,
     getTotalCount,
-    getTotalAmount,
   } = useCartStore()
 
   // Track which items are currently being updated/deleted to show smooth per-item spinner
   const [busyItemIds, setBusyItemIds] = useState<Record<string, boolean>>({})
   // Track expanded PC Case components accordions
   const [expandedPcCases, setExpandedPcCases] = useState<Record<string, boolean>>({})
+  // Selection state for cart items
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([])
+  const [hasInitializedSelection, setHasInitializedSelection] = useState<boolean>(false)
 
   // Fetch latest cart from backend on mount if authenticated
   useEffect(() => {
@@ -56,8 +63,55 @@ export const CartPage: React.FC = () => {
     }
   }, [isAuthenticated, fetchCart])
 
+  // Auto-select all in-stock items when items first load or become available
+  useEffect(() => {
+    if (items.length > 0 && !hasInitializedSelection) {
+      const inStockIds = items
+        .filter((item) => (item.stockQuantity ?? 0) > 0)
+        .map((item) => item.id)
+      setSelectedItemIds(inStockIds)
+      setHasInitializedSelection(true)
+    }
+  }, [items, hasInitializedSelection])
+
+  // Clean up selected items that no longer exist in cart
+  useEffect(() => {
+    const existingIds = new Set(items.map((i) => i.id))
+    setSelectedItemIds((prev) => prev.filter((id) => existingIds.has(id)))
+  }, [items])
+
   const totalCount = getTotalCount()
-  const totalAmount = getTotalAmount()
+
+  // Items with available stock
+  const inStockItems = items.filter((item) => (item.stockQuantity ?? 0) > 0)
+  const isAllSelected =
+    inStockItems.length > 0 &&
+    inStockItems.every((item) => selectedItemIds.includes(item.id))
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedItemIds([])
+    } else {
+      setSelectedItemIds(inStockItems.map((item) => item.id))
+    }
+  }
+
+  const toggleSelectItem = (itemId: string, inStock: boolean) => {
+    if (!inStock) return
+    setSelectedItemIds((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
+        : [...prev, itemId]
+    )
+  }
+
+  // Selected items calculation
+  const selectedItems = items.filter((item) => selectedItemIds.includes(item.id))
+  const selectedCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0)
+  const selectedAmount = selectedItems.reduce(
+    (sum, item) => sum + (item.subtotal || item.unitPrice * item.quantity),
+    0
+  )
 
   const handleUpdateQuantity = async (item: CartItem, newQty: number) => {
     if (newQty < 1) return
@@ -97,6 +151,7 @@ export const CartPage: React.FC = () => {
     if (!window.confirm("Bạn có chắc chắn muốn làm sạch toàn bộ giỏ hàng?")) return
     try {
       await clearCart()
+      setSelectedItemIds([])
       toast.success("Đã làm sạch toàn bộ giỏ hàng")
     } catch (err: any) {
       toast.error("Không thể xóa toàn bộ giỏ hàng")
@@ -108,6 +163,48 @@ export const CartPage: React.FC = () => {
       ...prev,
       [itemId]: !prev[itemId],
     }))
+  }
+
+  const handleProceedToCheckout = () => {
+    if (selectedItems.length === 0) {
+      toast.error("Vui lòng chọn ít nhất 1 sản phẩm để tiến hành đặt hàng!")
+      return
+    }
+
+    const checkoutItems: CheckoutItem[] = selectedItems.map((item) => {
+      const isPcCase = item.itemType === "PC_CASE"
+      const displayImage = isPcCase
+        ? "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
+        : item.productImage || item.product?.images?.[0]?.imageUrl || PLACEHOLDER_IMAGE
+
+      return {
+        id: item.id,
+        itemType: item.itemType,
+        productId: item.productId || item.product?.id,
+        productName: item.productName || item.product?.name,
+        productPrice: item.productPrice || item.product?.price,
+        productImage: displayImage,
+        category: item.category || item.product?.category,
+        product: item.product,
+        pcCaseId: item.pcCaseId || item.pcCase?.id,
+        pcCaseName: item.pcCaseName || item.pcCase?.name,
+        useCase: item.useCase || item.pcCase?.useCase,
+        pcCase: item.pcCase,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+        stockQuantity: item.stockQuantity,
+      }
+    })
+
+    setCheckoutItems(checkoutItems)
+
+    if (!isAuthenticated) {
+      toast.info("Vui lòng đăng nhập để tiến hành đặt hàng!")
+      navigate("/login?redirect=/checkout")
+      return
+    }
+
+    navigate("/checkout")
   }
 
   // -----------------------------------------------------------------
@@ -225,8 +322,7 @@ export const CartPage: React.FC = () => {
                   Bạn đang mua sắm với tư cách Khách
                 </p>
                 <p className="text-slate-600">
-                  Hãy đăng nhập để đồng bộ giỏ hàng tự động lên hệ thống và nhận
-                  các ưu đãi tích điểm.
+                  Hãy đăng nhập để đồng bộ giỏ hàng tự động lên hệ thống và tiến hành đặt hàng.
                 </p>
               </div>
             </div>
@@ -247,10 +343,38 @@ export const CartPage: React.FC = () => {
           {/* Left Column: Cart Items List (2 cols)                     */}
           {/* --------------------------------------------------------- */}
           <div className="lg:col-span-2 space-y-4">
+            {/* Selection Toolbar */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={toggleSelectAll}
+                  disabled={inStockItems.length === 0}
+                />
+                <span className="text-xs sm:text-sm font-bold text-slate-800">
+                  Chọn tất cả ({inStockItems.length} sản phẩm có sẵn)
+                </span>
+              </label>
+
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                <CheckSquare className="w-4 h-4 text-blue-600" />
+                <span>
+                  Đã chọn:{" "}
+                  <strong className="text-blue-600 font-extrabold text-sm">
+                    {selectedItems.length}
+                  </strong>{" "}
+                  mục ({selectedCount} cái)
+                </span>
+              </div>
+            </div>
+
+            {/* List of Cart Items */}
             {items.map((item) => {
               const isPcCase = item.itemType === "PC_CASE"
               const isBusy = busyItemIds[item.id] || false
               const isExpanded = expandedPcCases[item.id] || false
+              const inStock = (item.stockQuantity ?? 0) > 0
+              const isChecked = selectedItemIds.includes(item.id)
 
               // Metadata cho linh kiện lẻ
               const categoryMeta =
@@ -268,138 +392,154 @@ export const CartPage: React.FC = () => {
                 <div
                   key={item.id}
                   className={`relative bg-white rounded-2xl border transition-all duration-200 p-4 sm:p-5 shadow-xs ${
-                    isPcCase
+                    isChecked
+                      ? isPcCase
+                        ? "border-purple-400 ring-2 ring-purple-100"
+                        : "border-blue-400 ring-2 ring-blue-100"
+                      : isPcCase
                       ? "border-purple-200/80 hover:border-purple-300"
                       : "border-slate-200/90 hover:border-blue-300"
                   }`}
                 >
-                  {/* Item Main Row */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                    {/* Item Thumbnail */}
-                    <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-slate-50 border border-slate-100 p-2 flex items-center justify-center shrink-0 overflow-hidden">
-                      <img
-                        src={displayImage}
-                        alt={isPcCase ? item.pcCaseName : item.productName}
-                        className="w-full h-full object-contain"
-                        onError={(e) => {
-                          ;(e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE
-                        }}
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                    {/* Item Selection Checkbox */}
+                    <div className="pt-1 sm:pt-0 shrink-0">
+                      <Checkbox
+                        checked={isChecked}
+                        disabled={!inStock}
+                        onCheckedChange={() => toggleSelectItem(item.id, inStock)}
+                        aria-label={`Chọn ${isPcCase ? item.pcCaseName : item.productName}`}
                       />
-                      {isPcCase && (
-                        <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-purple-600 text-white">
-                          PC BUILD
-                        </div>
-                      )}
                     </div>
 
-                    {/* Item Content */}
-                    <div className="flex-1 min-w-0 w-full space-y-1.5">
-                      {/* Type & Category Badge */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {isPcCase ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                            <Cpu className="w-3 h-3" />
-                            Cấu hình PC • {item.useCase || "Đa năng"}
-                          </span>
-                        ) : (
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                              categoryMeta?.badgeClass ||
-                              "bg-slate-100 text-slate-700 border-slate-200"
-                            }`}
-                          >
-                            {CategoryIcon && <CategoryIcon className="w-3 h-3" />}
-                            {categoryMeta?.shortLabel || item.category || "Linh kiện"}
-                          </span>
-                        )}
-
-                        {/* Stock status indicator */}
-                        {(item.stockQuantity ?? 0) > 0 ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Còn hàng
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                            Hết hàng
-                          </span>
+                    {/* Item Main Row */}
+                    <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-4 min-w-0">
+                      {/* Item Thumbnail */}
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-50 border border-slate-100 p-2 flex items-center justify-center shrink-0 overflow-hidden">
+                        <img
+                          src={displayImage}
+                          alt={isPcCase ? item.pcCaseName : item.productName}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE
+                          }}
+                        />
+                        {isPcCase && (
+                          <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-purple-600 text-white">
+                            PC BUILD
+                          </div>
                         )}
                       </div>
 
-                      {/* Title */}
-                      <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-snug">
-                        {isPcCase ? item.pcCaseName : item.productName}
-                      </h3>
+                      {/* Item Content */}
+                      <div className="flex-1 min-w-0 w-full space-y-1.5">
+                        {/* Type & Category Badge */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {isPcCase ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                              <Cpu className="w-3 h-3" />
+                              Cấu hình PC • {item.useCase || "Đa năng"}
+                            </span>
+                          ) : (
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                                categoryMeta?.badgeClass ||
+                                "bg-slate-100 text-slate-700 border-slate-200"
+                              }`}
+                            >
+                              {CategoryIcon && <CategoryIcon className="w-3 h-3" />}
+                              {categoryMeta?.shortLabel || item.category || "Linh kiện"}
+                            </span>
+                          )}
 
-                      {/* Pricing */}
-                      <div className="flex items-baseline gap-2 pt-0.5">
-                        <span className="text-sm sm:text-base font-extrabold text-blue-600">
-                          {formatPrice(item.unitPrice)}
-                        </span>
-                        <span className="text-xs text-slate-400">/ cái</span>
-                      </div>
-                    </div>
-
-                    {/* Quantity Stepper & Subtotal & Delete */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      {/* Subtotal */}
-                      <div className="text-left sm:text-right">
-                        <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-                          Thành tiền
+                          {/* Stock status indicator */}
+                          {inStock ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              Còn hàng
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-500">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                              Hết hàng (không thể chọn)
+                            </span>
+                          )}
                         </div>
-                        <div className="text-base sm:text-lg font-black text-slate-900">
-                          {formatPrice(item.subtotal || item.unitPrice * item.quantity)}
-                        </div>
-                      </div>
 
-                      <div className="flex items-center gap-2">
-                        {/* Stepper */}
-                        <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
-                          <button
-                            type="button"
-                            disabled={isBusy || item.quantity <= 1}
-                            onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
-                            className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white disabled:opacity-30 transition"
-                            title="Giảm 1"
-                          >
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <span className="w-9 text-center text-xs font-bold text-slate-800">
-                            {isBusy ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto text-blue-600" />
-                            ) : (
-                              item.quantity
-                            )}
+                        {/* Title */}
+                        <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-snug">
+                          {isPcCase ? item.pcCaseName : item.productName}
+                        </h3>
+
+                        {/* Pricing */}
+                        <div className="flex items-baseline gap-2 pt-0.5">
+                          <span className="text-sm sm:text-base font-extrabold text-blue-600">
+                            {formatPrice(item.unitPrice)}
                           </span>
-                          <button
-                            type="button"
-                            disabled={isBusy || item.quantity >= (item.stockQuantity || 999)}
-                            onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
-                            className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white disabled:opacity-30 transition"
-                            title="Tăng 1"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
+                          <span className="text-xs text-slate-400">/ cái</span>
+                        </div>
+                      </div>
+
+                      {/* Quantity Stepper & Subtotal & Delete */}
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-3 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        {/* Subtotal */}
+                        <div className="text-left sm:text-right">
+                          <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+                            Thành tiền
+                          </div>
+                          <div className="text-base sm:text-lg font-black text-slate-900">
+                            {formatPrice(item.subtotal || item.unitPrice * item.quantity)}
+                          </div>
                         </div>
 
-                        {/* Remove Button */}
-                        <button
-                          type="button"
-                          disabled={isBusy}
-                          onClick={() => handleRemoveItem(item)}
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
-                          title="Xóa sản phẩm"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {/* Stepper */}
+                          <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
+                            <button
+                              type="button"
+                              disabled={isBusy || item.quantity <= 1}
+                              onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
+                              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white disabled:opacity-30 transition"
+                              title="Giảm 1"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-9 text-center text-xs font-bold text-slate-800">
+                              {isBusy ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto text-blue-600" />
+                              ) : (
+                                item.quantity
+                              )}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={isBusy || item.quantity >= (item.stockQuantity || 999)}
+                              onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
+                              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-white disabled:opacity-30 transition"
+                              title="Tăng 1"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Remove Button */}
+                          <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => handleRemoveItem(item)}
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+                            title="Xóa sản phẩm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* PC CASE: Collapsible Components Breakdown */}
                   {isPcCase && item.pcCase?.items && item.pcCase.items.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-purple-100">
+                    <div className="mt-4 pt-3 border-t border-purple-100 pl-7 sm:pl-8">
                       <button
                         type="button"
                         onClick={() => togglePcCaseDetails(item.id)}
@@ -466,20 +606,25 @@ export const CartPage: React.FC = () => {
           {/* --------------------------------------------------------- */}
           <div className="lg:col-span-1 space-y-4 sticky top-20">
             <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-5">
-              <h2 className="font-bold text-base text-slate-900 pb-3 border-b border-slate-100">
-                Tóm tắt đơn hàng
-              </h2>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h2 className="font-bold text-base text-slate-900">
+                  Tóm tắt đơn hàng
+                </h2>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  Đã chọn {selectedItems.length} mục
+                </span>
+              </div>
 
               <div className="space-y-3 text-xs sm:text-sm">
                 <div className="flex items-center justify-between text-slate-600">
-                  <span>Tổng số lượng sản phẩm:</span>
-                  <span className="font-bold text-slate-800">{totalCount} cái</span>
+                  <span>Số lượng sản phẩm đã chọn:</span>
+                  <span className="font-bold text-slate-800">{selectedCount} cái</span>
                 </div>
 
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Tạm tính tiền hàng:</span>
                   <span className="font-bold text-slate-900">
-                    {formatPrice(totalAmount)}
+                    {formatPrice(selectedAmount)}
                   </span>
                 </div>
 
@@ -501,7 +646,7 @@ export const CartPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-xl sm:text-2xl font-black text-blue-600 tracking-tight">
-                    {formatPrice(totalAmount)}
+                    {formatPrice(selectedAmount)}
                   </div>
                 </div>
               </div>
@@ -510,20 +655,22 @@ export const CartPage: React.FC = () => {
               <div className="pt-2">
                 <Button
                   size="lg"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 shadow-md hover:shadow-lg transition-all h-12 text-sm"
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      toast.info("Vui lòng đăng nhập để tiến hành đặt hàng!")
-                      navigate("/login?redirect=/checkout")
-                      return
-                    }
-                    toast.success("Đang chuyển sang trang thanh toán...")
-                    navigate("/checkout")
-                  }}
+                  disabled={selectedItems.length === 0}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold gap-2 shadow-md hover:shadow-lg transition-all h-12 text-sm"
+                  onClick={handleProceedToCheckout}
                 >
-                  <span>Tiến hành đặt hàng</span>
+                  <span>
+                    {selectedItems.length > 0
+                      ? `Tiến hành đặt hàng (${selectedItems.length})`
+                      : "Vui lòng chọn sản phẩm"}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
+                {selectedItems.length === 0 && (
+                  <p className="text-[11px] text-center text-slate-400 pt-2 font-medium">
+                    Chọn ít nhất một món hàng bên danh sách để tiếp tục
+                  </p>
+                )}
               </div>
 
               {/* Security & Benefits Guarantee */}

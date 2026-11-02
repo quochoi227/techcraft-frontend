@@ -9,6 +9,7 @@ import { NotFoundPage } from "@/pages/not-found/NotFoundPage"
 import { ProductListPage as UserProductListPage } from "@/pages/products/ProductListPage"
 import { ProductDetailPage } from "@/pages/products/ProductDetailPage"
 import { CartPage } from "@/pages/cart/CartPage"
+import { CheckoutPage } from "@/pages/checkout/CheckoutPage"
 import { PcCaseListPage as UserPcCaseListPage } from "@/pages/pc-cases/PcCaseListPage"
 import { PcCaseDetailPage } from "@/pages/pc-cases/PcCaseDetailPage"
 import { ProductListPage } from "@/pages/admin/products/ProductListPage"
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
       {
         path: "cart",
         element: <CartPage />,
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
       },
     ],
   },

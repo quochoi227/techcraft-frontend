@@ -37,6 +37,8 @@ import {
 } from "./constants"
 import { CATEGORIES_META, formatDetail } from "@/pages/products/constants"
 import { useCartStore } from "@/stores/cartStore"
+import { useCheckoutStore } from "@/stores/checkoutStore"
+import type { CheckoutItem } from "@/types/order"
 import { PcCaseReviewSection } from "./components/PcCaseReviewSection"
 import { RelatedPcCases } from "./components/RelatedPcCases"
 import { Button } from "@/components/ui/button"
@@ -73,6 +75,7 @@ export const PcCaseDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"components" | "specs" | "desc" | "reviews" | "policy">("components")
 
   const addPcCaseToCart = useCartStore((state) => state.addPcCase)
+  const setCheckoutItems = useCheckoutStore((state) => state.setCheckoutItems)
 
   // Build high-res gallery list from PC Case shell and all included components
   const buildGallery = (data: PcCase) => {
@@ -252,19 +255,32 @@ export const PcCaseDetailPage: React.FC = () => {
     }
   }
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!inStock) {
       toast.error("Cấu hình PC này hiện đang tạm hết linh kiện lắp ráp!")
       return
     }
 
-    try {
-      await addPcCaseToCart(pcCase, quantity)
-      navigate("/cart")
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Không thể tiến hành mua ngay"
-      toast.error(msg)
+    const caseProduct = getComponentByCategory(pcCase, "CASE")
+    const displayImage =
+      caseProduct?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
+      caseProduct?.images?.[0]?.imageUrl ||
+      PREBUILT_PC_IMAGE
+
+    const checkoutItem: CheckoutItem = {
+      itemType: "PC_CASE",
+      pcCaseId: pcCase.id,
+      pcCaseName: pcCase.name,
+      productImage: displayImage,
+      useCase: pcCase.useCase,
+      pcCase,
+      unitPrice: pcCase.totalPrice,
+      quantity,
+      stockQuantity: maxStock,
     }
+
+    setCheckoutItems([checkoutItem])
+    navigate("/checkout")
   }
 
   return (
