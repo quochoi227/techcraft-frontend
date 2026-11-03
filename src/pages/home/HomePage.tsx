@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom"
-import { Cpu, Bot, ArrowRight, ShieldCheck, Zap } from "lucide-react"
+import { Cpu, Bot, ArrowRight, ShieldCheck, Zap, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export const HomePage: React.FC = () => {
@@ -9,10 +9,14 @@ export const HomePage: React.FC = () => {
       {/* Hero Section Banner */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50/50 to-white">
         <div className="max-w-5xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-            <Bot className="w-3.5 h-3.5" />
-            Trợ lý AI build PC thông minh đầu tiên tại Việt Nam
-          </div>
+          <Link
+            to="/ai-consultant"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/80 text-blue-700 text-xs font-semibold transition-colors"
+          >
+            <Bot className="w-3.5 h-3.5 text-blue-600" />
+            <span>Trợ lý AI build PC thông minh đầu tiên tại Việt Nam</span>
+            <Sparkles className="w-3 h-3 text-amber-500" />
+          </Link>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
             Xây dựng dàn PC hoàn hảo với{" "}
@@ -27,15 +31,18 @@ export const HomePage: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
             <Button
               size="lg"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium gap-2 shadow-md"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium gap-2 shadow-md shadow-blue-500/20"
               asChild
             >
-              <Link to="/register">
-                Tạo tài khoản ngay <ArrowRight className="w-4 h-4" />
+              <Link to="/ai-consultant">
+                Tư vấn với AI ngay <Bot className="w-4 h-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/products">Khám phá linh kiện</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/pc-cases">Bộ PC lắp sẵn</Link>
             </Button>
           </div>
 
@@ -55,19 +62,23 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <Link
+              to="/ai-consultant"
+              className="bg-white p-6 rounded-xl border border-blue-200/80 shadow-sm flex gap-4 items-start hover:shadow-md hover:border-blue-400 transition-all group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-sm mb-1">
+                <h3 className="font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5 group-hover:text-blue-600 transition-colors">
                   Gợi ý cấu hình tối ưu AI
+                  <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>
                 <p className="text-xs text-slate-500">
                   Lựa chọn bộ máy phù hợp nhất theo ngân sách và công việc của bạn.
                 </p>
               </div>
-            </div>
+            </Link>
 
             <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm flex gap-4 items-start">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
