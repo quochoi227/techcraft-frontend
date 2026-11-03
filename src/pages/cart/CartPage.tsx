@@ -26,6 +26,7 @@ import { useCheckoutStore } from "@/stores/checkoutStore"
 import type { CartItem } from "@/types/cart"
 import type { CheckoutItem } from "@/types/order"
 import { CATEGORIES_META, formatPrice } from "@/pages/products/constants"
+import { getPcCaseThumbnail } from "@/pages/pc-cases/constants"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "sonner"
@@ -174,7 +175,7 @@ export const CartPage: React.FC = () => {
     const checkoutItems: CheckoutItem[] = selectedItems.map((item) => {
       const isPcCase = item.itemType === "PC_CASE"
       const displayImage = isPcCase
-        ? "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
+        ? getPcCaseThumbnail(item.pcCase)
         : item.productImage || item.product?.images?.[0]?.imageUrl || PLACEHOLDER_IMAGE
 
       return {
@@ -383,9 +384,8 @@ export const CartPage: React.FC = () => {
 
               // Hình ảnh đại diện
               const displayImage = isPcCase
-                ? "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
-                : item.productImage ||
-                  item.product?.images?.[0]?.imageUrl ||
+                ? getPcCaseThumbnail(item.pcCase)
+        : item.productImage || item.product?.images?.[0]?.imageUrl ||
                   PLACEHOLDER_IMAGE
 
               return (

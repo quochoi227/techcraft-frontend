@@ -7,6 +7,7 @@ import {
 } from "lucide-react"
 import type { PcCase } from "@/types/pcCase"
 import type { ProductCategory } from "@/types/product"
+import { MOCK_PC_CASES } from "./mockData"
 
 export interface UseCaseMeta {
   value: string
@@ -163,4 +164,37 @@ export const getComponentByCategory = (
   category: ProductCategory
 ) => {
   return pcCase.items?.find((i) => i.category === category)?.product
+}
+
+/**
+ * Lấy URL ảnh đại diện của vỏ case (CASE) trong cấu hình PC
+ * Giống như logic hiển thị ở trang danh sách PC Case
+ */
+export const getPcCaseThumbnail = (
+  pcCase?: PcCase | null,
+  fallbackImage: string = "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
+): string => {
+  if (!pcCase) return fallbackImage
+
+  // 1. Tìm linh kiện vỏ case trong pcCase.items
+  const caseProduct = getComponentByCategory(pcCase, "CASE")
+  const caseImg =
+    caseProduct?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
+    caseProduct?.images?.[0]?.imageUrl
+
+  if (caseImg) return caseImg
+
+  // 2. Nếu pcCase.items chưa có hoặc thiếu thông tin vỏ case, tra cứu trong danh sách mẫu PC Case theo ID
+  if (pcCase.id) {
+    const mockMatch = MOCK_PC_CASES.find((m) => m.id === pcCase.id)
+    if (mockMatch) {
+      const mockCaseProduct = getComponentByCategory(mockMatch, "CASE")
+      const mockCaseImg =
+        mockCaseProduct?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
+        mockCaseProduct?.images?.[0]?.imageUrl
+      if (mockCaseImg) return mockCaseImg
+    }
+  }
+
+  return fallbackImage
 }
