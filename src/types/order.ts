@@ -100,6 +100,74 @@ export interface OrderFilterParams {
   sortDir?: "asc" | "desc"
   status?: OrderStatus | "ALL"
   search?: string
+  keyword?: string
+  paymentMethod?: PaymentMethod
+}
+
+export interface AdminOrderFilterParams extends OrderFilterParams {}
+
+export interface UpdateOrderStatusPayload {
+  status: OrderStatus
+}
+
+export const ORDER_STATUSES: OrderStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "SHIPPING",
+  "DELIVERED",
+  "CANCELLED",
+]
+
+/**
+ * Trả về danh sách các trạng thái hợp lệ tiếp theo theo quy tắc của Backend OrderServiceImpl
+ */
+export const getNextValidStatuses = (currentStatus: OrderStatus): OrderStatus[] => {
+  switch (currentStatus) {
+    case "PENDING":
+      return ["CONFIRMED", "CANCELLED"]
+    case "CONFIRMED":
+      return ["SHIPPING", "CANCELLED"]
+    case "SHIPPING":
+      return ["DELIVERED", "CANCELLED"]
+    case "DELIVERED":
+    case "CANCELLED":
+    default:
+      return []
+  }
+}
+
+/**
+ * Trạng thái tiến trình tiếp theo tự nhiên (không tính Cancel)
+ */
+export const getNextRecommendedStatus = (currentStatus: OrderStatus): OrderStatus | null => {
+  switch (currentStatus) {
+    case "PENDING":
+      return "CONFIRMED"
+    case "CONFIRMED":
+      return "SHIPPING"
+    case "SHIPPING":
+      return "DELIVERED"
+    default:
+      return null
+  }
+}
+
+/**
+ * Nhãn thao tác nhanh ứng với trạng thái tiếp theo
+ */
+export const getStatusActionLabel = (nextStatus: OrderStatus): string => {
+  switch (nextStatus) {
+    case "CONFIRMED":
+      return "Xác nhận đơn"
+    case "SHIPPING":
+      return "Bàn giao vận chuyển"
+    case "DELIVERED":
+      return "Giao thành công"
+    case "CANCELLED":
+      return "Hủy đơn"
+    default:
+      return "Cập nhật"
+  }
 }
 
 export interface PageResponse<T> {

@@ -91,9 +91,6 @@ export const AdminSidebar: React.FC = () => {
                 <ShoppingBag className="w-4 h-4 shrink-0" />
                 <span>Quản lý đơn hàng</span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-600">
-                3 mới
-              </span>
             </NavLink>
 
             <NavLink
