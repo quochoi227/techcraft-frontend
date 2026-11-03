@@ -14,6 +14,7 @@ import { OrderHistoryPage } from "@/pages/orders/OrderHistoryPage"
 import { ProfilePage } from "@/pages/profile/ProfilePage"
 import { PcCaseListPage as UserPcCaseListPage } from "@/pages/pc-cases/PcCaseListPage"
 import { PcCaseDetailPage } from "@/pages/pc-cases/PcCaseDetailPage"
+import { AiConsultantPage } from "@/pages/chat/AiConsultantPage"
 import { ProductListPage } from "@/pages/admin/products/ProductListPage"
 import { DashboardPage } from "@/pages/admin/dashboard/DashboardPage"
 import { OrderListPage } from "@/pages/admin/orders/OrderListPage"
@@ -58,6 +59,14 @@ export const router = createBrowserRouter([
       {
         path: "pc-cases/:id",
         element: <PcCaseDetailPage />,
+      },
+      {
+        path: "ai-consultant",
+        element: <AiConsultantPage />,
+      },
+      {
+        path: "chat",
+        element: <Navigate to="/ai-consultant" replace />,
       },
       {
         path: "cart",
