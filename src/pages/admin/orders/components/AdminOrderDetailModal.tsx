@@ -30,6 +30,7 @@ import {
   getStatusActionLabel,
 } from "@/types/order"
 import { CATEGORIES_META } from "@/pages/products/constants"
+import { getPcCaseThumbnail } from "@/pages/pc-cases/constants"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
@@ -427,7 +428,7 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                 const CategoryIcon = categoryMeta?.icon
 
                 const displayImage = isPcCase
-                  ? "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
+                  ? getPcCaseThumbnail(item.pcCase)
                   : item.productImage ||
                     item.product?.images?.[0]?.imageUrl ||
                     PLACEHOLDER_IMAGE

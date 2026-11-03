@@ -72,6 +72,27 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
           description: "Cấu hình đồ họa 3D, Premiere, Blender mượt mà",
           isActive: true,
           items: [
+            {
+              id: "c-case-1",
+              productId: "prod-case-corsair-4000d",
+              category: "CASE",
+              product: {
+                id: "prod-case-corsair-4000d",
+                name: "Vỏ Case Corsair 4000D AIRFLOW Tempered Glass Black",
+                price: 2190000,
+                stockQuantity: 10,
+                category: "CASE",
+                detail: {} as any,
+                images: [
+                  {
+                    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1/products/case/corsair-4000d-airflow-black-1.jpg",
+                    primary: true,
+                    displayOrder: 0,
+                  },
+                ],
+                active: true,
+              },
+            },
             { id: "c1", productId: "p1", category: "CPU", product: { id: "p1", name: "Intel Core i7-13700K", price: 9800000, stockQuantity: 10, category: "CPU", detail: {} as any, images: [], active: true } },
             { id: "c2", productId: "p2", category: "GPU", product: { id: "p2", name: "RTX 4070 12GB GAMING", price: 14500000, stockQuantity: 8, category: "GPU", detail: {} as any, images: [], active: true } },
             { id: "c3", productId: "p3", category: "RAM", product: { id: "p3", name: "Corsair Vengeance 32GB DDR5 6000MHz", price: 2550000, stockQuantity: 20, category: "RAM", detail: {} as any, images: [], active: true } },
@@ -151,6 +172,27 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
           description: "Chiến mượt mọi tựa game AAA và Esport 144Hz",
           isActive: true,
           items: [
+            {
+              id: "c-case-2",
+              productId: "prod-case-nzxt-h9",
+              category: "CASE",
+              product: {
+                id: "prod-case-nzxt-h9",
+                name: "Vỏ Case NZXT H9 Flow White Dual-Chamber Mid-Tower",
+                price: 4190000,
+                stockQuantity: 10,
+                category: "CASE",
+                detail: {} as any,
+                images: [
+                  {
+                    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1/products/case/nzxt-h9-flow-white-1.jpg",
+                    primary: true,
+                    displayOrder: 0,
+                  },
+                ],
+                active: true,
+              },
+            },
             { id: "c4", productId: "p4", category: "CPU", product: { id: "p4", name: "AMD Ryzen 5 7600 5.1GHz", price: 5400000, stockQuantity: 15, category: "CPU", detail: {} as any, images: [], active: true } },
             { id: "c5", productId: "p5", category: "GPU", product: { id: "p5", name: "RTX 4060 8GB GDDR6", price: 8200000, stockQuantity: 12, category: "GPU", detail: {} as any, images: [], active: true } },
           ],

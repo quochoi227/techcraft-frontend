@@ -34,6 +34,7 @@ import {
 import { MOCK_ADMIN_ORDERS, MOCK_ADMIN_ORDERS_PAGE } from "./mockData"
 import { AdminOrderDetailModal } from "./components/AdminOrderDetailModal"
 import { UpdateStatusModal } from "./components/UpdateStatusModal"
+import { getPcCaseThumbnail } from "@/pages/pc-cases/constants"
 import { orderService } from "@/services/api/orderService"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -662,24 +663,53 @@ export const OrderListPage: React.FC = () => {
                       </td>
 
                       {/* Items Summary */}
-                      <td className="py-4 px-4 min-w-[160px]">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
-                            {hasPcCase ? (
-                              <Cpu className="w-4 h-4 text-purple-600" />
-                            ) : (
-                              <Layers className="w-4 h-4 text-blue-600" />
-                            )}
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-800">
-                              {order.items?.length || 0} mục
-                            </span>
-                            <span className="text-slate-400 text-[11px] block">
-                              Tổng: {order.totalQuantity || order.items?.reduce((s, i) => s + i.quantity, 0)} cái
-                            </span>
-                          </div>
-                        </div>
+                      <td className="py-4 px-4 min-w-[170px]">
+                        {(() => {
+                          const pcCaseItem = order.items?.find((i) => i.itemType === "PC_CASE" || !!i.pcCaseId)
+                          const firstItem = pcCaseItem || order.items?.[0]
+                          const isPc = firstItem?.itemType === "PC_CASE" || !!firstItem?.pcCaseId
+                          const thumbImg = isPc
+                            ? getPcCaseThumbnail(firstItem?.pcCase)
+                            : firstItem?.productImage || firstItem?.product?.images?.[0]?.imageUrl
+
+                          return (
+                            <div className="flex items-center gap-2.5">
+                              {thumbImg ? (
+                                <div className="relative w-9 h-9 rounded-xl bg-slate-50 border border-slate-200/90 p-0.5 flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+                                  <img
+                                    src={thumbImg}
+                                    alt="Thumbnail"
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      ;(e.target as HTMLElement).style.display = "none"
+                                    }}
+                                  />
+                                  {hasPcCase && (
+                                    <span className="absolute top-0.5 left-0.5 text-[8px] font-extrabold bg-purple-600 text-white px-1 rounded leading-tight">
+                                      PC
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                  {hasPcCase ? (
+                                    <Cpu className="w-4 h-4 text-purple-600" />
+                                  ) : (
+                                    <Layers className="w-4 h-4 text-blue-600" />
+                                  )}
+                                </div>
+                              )}
+                              <div>
+                                <span className="font-bold text-slate-800">
+                                  {order.items?.length || 0} mục
+                                </span>
+                                <span className="text-slate-400 text-[11px] block">
+                                  Tổng: {order.totalQuantity || order.items?.reduce((s, i) => s + i.quantity, 0)} cái
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })()}
                       </td>
 
                       {/* Total Amount */}

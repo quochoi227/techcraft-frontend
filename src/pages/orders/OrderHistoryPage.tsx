@@ -20,6 +20,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { useCheckoutStore } from "@/stores/checkoutStore"
 import { orderService } from "@/services/api/orderService"
 import { formatPrice, CATEGORIES_META } from "@/pages/products/constants"
+import { getPcCaseThumbnail } from "@/pages/pc-cases/constants"
 import type { Order, OrderStatus, CheckoutItem } from "@/types/order"
 import { ORDER_STATUS_META } from "@/types/order"
 import { Button } from "@/components/ui/button"
@@ -402,7 +403,7 @@ export const OrderHistoryPage: React.FC = () => {
                       const CategoryIcon = categoryMeta?.icon
 
                       const displayImage = isPcCase
-                        ? "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
+                        ? getPcCaseThumbnail(item.pcCase)
                         : item.productImage ||
                           item.product?.images?.[0]?.imageUrl ||
                           PLACEHOLDER_IMAGE
