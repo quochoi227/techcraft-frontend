@@ -7,8 +7,17 @@ export interface User {
   phone?: string
   address?: string
   role: UserRole
+  emailVerified?: boolean
+  active?: boolean
   createdAt?: string
   updatedAt?: string
+}
+
+export interface UpdateProfilePayload {
+  fullName: string
+  email: string
+  phone?: string
+  address?: string
 }
 
 export interface AuthResponseData {
