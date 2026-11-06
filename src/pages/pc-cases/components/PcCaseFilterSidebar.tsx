@@ -69,7 +69,9 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
   return (
     <aside
       className={`space-y-6 ${
-        isMobileDrawer ? "p-4" : "p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs"
+        isMobileDrawer
+          ? "p-4"
+          : "p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs"
       }`}
     >
       {/* Header */}
@@ -89,7 +91,38 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
         </button>
       </div>
 
-      {/* 1. Nhu cầu sử dụng (Use Case) */}
+      {/* 1. Tình trạng linh kiện */}
+      <div className="space-y-3 pt-4 border-t border-slate-100">
+        <button
+          type="button"
+          onClick={() => setIsStockExpanded(!isStockExpanded)}
+          className="w-full flex items-center justify-between text-sm font-bold text-slate-800"
+        >
+          <span className="flex items-center gap-2">
+            <PackageCheck className="w-4 h-4 text-emerald-500" />
+            Tình trạng lắp ráp
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-slate-400 transition-transform ${
+              isStockExpanded ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isStockExpanded && (
+          <div className="space-y-2 pt-1">
+            <label className="flex items-center gap-2.5 text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900 select-none">
+              <Checkbox
+                checked={onlyInStock}
+                onCheckedChange={(checked) => onToggleInStock(Boolean(checked))}
+              />
+              <span>Chỉ hiển thị cấu hình đủ linh kiện</span>
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Nhu cầu sử dụng (Use Case) */}
       <div className="space-y-3">
         <button
           type="button"
@@ -110,19 +143,19 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
         {isUseCaseExpanded && (
           <div className="space-y-1 pt-1">
             {useCasesList.map((ucKey) => {
-              const isAll = ucKey === "ALL"
-              const isSelected = selectedUseCase === ucKey
-              const meta = !isAll ? USE_CASES_META[ucKey] : null
-              const Icon = meta?.icon
+              const isAll = ucKey === "ALL";
+              const isSelected = selectedUseCase === ucKey;
+              const meta = !isAll ? USE_CASES_META[ucKey] : null;
+              const Icon = meta?.icon;
 
               return (
                 <button
                   key={ucKey}
                   type="button"
                   onClick={() => {
-                    onSelectUseCase(ucKey)
+                    onSelectUseCase(ucKey);
                     if (isMobileDrawer && onCloseMobileDrawer) {
-                      onCloseMobileDrawer()
+                      onCloseMobileDrawer();
                     }
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -135,24 +168,28 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
                     {Icon ? (
                       <Icon
                         className={`w-4 h-4 ${
-                          isSelected ? "text-white" : meta?.colorClass || "text-slate-400"
+                          isSelected
+                            ? "text-white"
+                            : meta?.colorClass || "text-slate-400"
                         }`}
                       />
                     ) : (
-                      <Sparkles className={`w-4 h-4 ${isSelected ? "text-white" : "text-purple-500"}`} />
+                      <Sparkles
+                        className={`w-4 h-4 ${isSelected ? "text-white" : "text-purple-500"}`}
+                      />
                     )}
                     <span>{isAll ? "Tất cả nhu cầu" : meta?.label}</span>
                   </div>
 
                   {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                 </button>
-              )
+              );
             })}
           </div>
         )}
       </div>
 
-      {/* 2. Mức ngân sách (Price Range) */}
+      {/* 3. Mức ngân sách (Price Range) */}
       <div className="space-y-3 pt-4 border-t border-slate-100">
         <button
           type="button"
@@ -175,15 +212,15 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
             {/* Presets */}
             <div className="space-y-1.5">
               {PC_PRICE_RANGE_PRESETS.map((preset) => {
-                const isSelected = selectedPricePresetId === preset.id
+                const isSelected = selectedPricePresetId === preset.id;
                 return (
                   <button
                     key={preset.id}
                     type="button"
                     onClick={() => {
-                      onSelectPricePreset(preset)
+                      onSelectPricePreset(preset);
                       if (isMobileDrawer && onCloseMobileDrawer) {
-                        onCloseMobileDrawer()
+                        onCloseMobileDrawer();
                       }
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -200,10 +237,12 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
                           : "border-slate-300"
                       }`}
                     >
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
                     </span>
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -241,37 +280,6 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
         )}
       </div>
 
-      {/* 3. Tình trạng linh kiện */}
-      <div className="space-y-3 pt-4 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={() => setIsStockExpanded(!isStockExpanded)}
-          className="w-full flex items-center justify-between text-sm font-bold text-slate-800"
-        >
-          <span className="flex items-center gap-2">
-            <PackageCheck className="w-4 h-4 text-emerald-500" />
-            Tình trạng lắp ráp
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 text-slate-400 transition-transform ${
-              isStockExpanded ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-
-        {isStockExpanded && (
-          <div className="space-y-2 pt-1">
-            <label className="flex items-center gap-2.5 text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900 select-none">
-              <Checkbox
-                checked={onlyInStock}
-                onCheckedChange={(checked) => onToggleInStock(Boolean(checked))}
-              />
-              <span>Chỉ hiển thị cấu hình đủ linh kiện</span>
-            </label>
-          </div>
-        )}
-      </div>
-
       {/* Mobile Drawer Close Button */}
       {isMobileDrawer && (
         <div className="pt-6">
@@ -280,10 +288,11 @@ export const PcCaseFilterSidebar: React.FC<PcCaseFilterSidebarProps> = ({
             className="w-full bg-purple-600 hover:bg-purple-700 text-white"
             onClick={onCloseMobileDrawer}
           >
-            Xem kết quả {totalCount !== undefined ? `(${totalCount} cấu hình)` : ""}
+            Xem kết quả{" "}
+            {totalCount !== undefined ? `(${totalCount} cấu hình)` : ""}
           </Button>
         </div>
       )}
     </aside>
-  )
+  );
 }
