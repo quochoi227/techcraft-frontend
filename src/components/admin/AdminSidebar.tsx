@@ -31,9 +31,9 @@ export const AdminSidebar: React.FC = () => {
     }
   }
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 min-h-screen">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-screen sticky top-0 z-30 select-none">
       {/* Brand Logo Header */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-200 gap-3">
+      <div className="h-16 flex items-center px-6 border-b border-slate-200 gap-3 shrink-0">
         <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
           <Cpu className="w-5 h-5" />
         </div>
@@ -43,7 +43,7 @@ export const AdminSidebar: React.FC = () => {
       </div>
 
       {/* Navigation Sections */}
-      <div className="flex-1 px-3 py-6 space-y-6 overflow-y-auto">
+      <div className="flex-1 min-h-0 px-3 py-6 space-y-6 overflow-y-auto">
         <div>
           <h4 className="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Phân hệ quản trị
@@ -139,7 +139,7 @@ export const AdminSidebar: React.FC = () => {
       </div>
 
       {/* Bottom Footer Actions */}
-      <div className="p-3 border-t border-slate-200 space-y-1">
+      <div className="p-3 border-t border-slate-200 space-y-1 shrink-0 bg-white">
         <Link
           to="/"
           className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
@@ -148,7 +148,6 @@ export const AdminSidebar: React.FC = () => {
             <ExternalLink className="w-4 h-4 shrink-0 text-slate-400" />
             <span>Quay về Cửa hàng</span>
           </div>
-          <span className="text-slate-400 text-xs">↗</span>
         </Link>
 
         <button

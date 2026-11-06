@@ -49,7 +49,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumbs }) => {
     .toUpperCase() || "TM"
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-40">
+    <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0 z-40">
       {/* Breadcrumb */}
       <nav className="flex items-center text-sm font-medium">
         {effectiveBreadcrumbs.map((crumb, idx) => (
