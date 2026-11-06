@@ -382,7 +382,8 @@ export const UserListPage: React.FC = () => {
             <span>
               Chưa kết nối được máy chủ Backend (
               <code className="px-1 py-0.5 bg-amber-100 rounded text-amber-900 font-mono">
-                {import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api"}
+                {import.meta.env.VITE_API_BASE_URL ||
+                  "http://localhost:8080/api"}
               </code>
               ). Đang hiển thị dữ liệu mẫu để trải nghiệm đầy đủ giao diện.
             </span>
@@ -405,7 +406,8 @@ export const UserListPage: React.FC = () => {
             <span>Quản lý người dùng</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Quản lý tài khoản khách hàng, nhân viên, phân quyền ADMIN / USER và trạng thái hoạt động.
+            Quản lý tài khoản khách hàng, nhân viên, phân quyền ADMIN / USER và
+            trạng thái hoạt động.
           </p>
         </div>
 
@@ -417,7 +419,9 @@ export const UserListPage: React.FC = () => {
             disabled={isLoading}
             className="text-xs font-semibold gap-2 border-slate-200 hover:bg-slate-50"
           >
-            <RotateCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-blue-600" : ""}`} />
+            <RotateCw
+              className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-blue-600" : ""}`}
+            />
             <span>Làm mới</span>
           </Button>
         </div>
@@ -428,7 +432,9 @@ export const UserListPage: React.FC = () => {
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-500">Tổng tài khoản</p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{stats.total}</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">
+              {stats.total}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
             <Users className="w-5 h-5" />
@@ -437,8 +443,12 @@ export const UserListPage: React.FC = () => {
 
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-slate-500">Quản trị viên (ADMIN)</p>
-            <p className="text-2xl font-bold text-purple-700 mt-1">{stats.admins}</p>
+            <p className="text-xs font-medium text-slate-500">
+              Quản trị viên (ADMIN)
+            </p>
+            <p className="text-2xl font-bold text-purple-700 mt-1">
+              {stats.admins}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5" />
@@ -447,8 +457,12 @@ export const UserListPage: React.FC = () => {
 
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-slate-500">Khách hàng (USER)</p>
-            <p className="text-2xl font-bold text-indigo-700 mt-1">{stats.regularUsers}</p>
+            <p className="text-xs font-medium text-slate-500">
+              Khách hàng (USER)
+            </p>
+            <p className="text-2xl font-bold text-indigo-700 mt-1">
+              {stats.regularUsers}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
             <UserCheck className="w-5 h-5" />
@@ -458,7 +472,9 @@ export const UserListPage: React.FC = () => {
         <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-500">Đang hoạt động</p>
-            <p className="text-2xl font-bold text-emerald-600 mt-1">{stats.activeAccounts}</p>
+            <p className="text-2xl font-bold text-emerald-600 mt-1">
+              {stats.activeAccounts}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5" />
@@ -468,7 +484,9 @@ export const UserListPage: React.FC = () => {
         <div className="col-span-2 md:col-span-1 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-500">Đã bị khóa</p>
-            <p className="text-2xl font-bold text-rose-600 mt-1">{stats.lockedAccounts}</p>
+            <p className="text-2xl font-bold text-rose-600 mt-1">
+              {stats.lockedAccounts}
+            </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
             <Lock className="w-5 h-5" />
@@ -482,12 +500,12 @@ export const UserListPage: React.FC = () => {
           {/* Search Input */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <Input
+            <input
               type="text"
               placeholder="Tìm theo họ tên, email hoặc số điện thoại..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9.5 pr-8 text-xs bg-slate-50/50 border-slate-200 focus:bg-white h-10 rounded-lg"
+              className="w-full h-10 pl-10 pr-16 rounded-lg bg-white border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 shadow-sm"
             />
             {searchQuery && (
               <button
@@ -504,12 +522,14 @@ export const UserListPage: React.FC = () => {
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
             {/* Role Filter */}
             <div className="flex items-center gap-1.5 w-full sm:w-auto">
-              <span className="text-xs text-slate-500 font-medium shrink-0">Vai trò:</span>
+              <span className="text-xs text-slate-500 font-medium shrink-0">
+                Vai trò:
+              </span>
               <select
                 value={roleFilter}
                 onChange={(e) => {
-                  setRoleFilter(e.target.value as any)
-                  setCurrentPage(1)
+                  setRoleFilter(e.target.value as any);
+                  setCurrentPage(1);
                 }}
                 className="w-full sm:w-auto text-xs bg-slate-50/50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 h-10 cursor-pointer"
               >
@@ -521,12 +541,14 @@ export const UserListPage: React.FC = () => {
 
             {/* Status Filter */}
             <div className="flex items-center gap-1.5 w-full sm:w-auto">
-              <span className="text-xs text-slate-500 font-medium shrink-0">Trạng thái:</span>
+              <span className="text-xs text-slate-500 font-medium shrink-0">
+                Trạng thái:
+              </span>
               <select
                 value={statusFilter}
                 onChange={(e) => {
-                  setStatusFilter(e.target.value as any)
-                  setCurrentPage(1)
+                  setStatusFilter(e.target.value as any);
+                  setCurrentPage(1);
                 }}
                 className="w-full sm:w-auto text-xs bg-slate-50/50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 h-10 cursor-pointer"
               >
@@ -542,8 +564,8 @@ export const UserListPage: React.FC = () => {
               <select
                 value={sortBy}
                 onChange={(e) => {
-                  setSortBy(e.target.value as SortOption)
-                  setCurrentPage(1)
+                  setSortBy(e.target.value as SortOption);
+                  setCurrentPage(1);
                 }}
                 className="w-full sm:w-auto text-xs bg-slate-50/50 border border-slate-200 rounded-lg px-2.5 py-2 text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-blue-500 h-10 cursor-pointer"
               >
@@ -657,10 +679,12 @@ export const UserListPage: React.FC = () => {
               ) : (
                 // Users Data Rows
                 users.map((user) => {
-                  const isSelf = Boolean(currentAdminId && user.id === currentAdminId)
-                  const isActive = user.active !== false
-                  const isVerified = Boolean(user.emailVerified)
-                  const isAdmin = user.role === "ADMIN"
+                  const isSelf = Boolean(
+                    currentAdminId && user.id === currentAdminId,
+                  );
+                  const isActive = user.active !== false;
+                  const isVerified = Boolean(user.emailVerified);
+                  const isAdmin = user.role === "ADMIN";
 
                   return (
                     <tr
@@ -708,12 +732,17 @@ export const UserListPage: React.FC = () => {
                             <span>{user.phone || "—"}</span>
                           </div>
                           {user.address ? (
-                            <div className="flex items-start gap-1.5 text-[11px] text-slate-500 truncate" title={user.address}>
+                            <div
+                              className="flex items-start gap-1.5 text-[11px] text-slate-500 truncate"
+                              title={user.address}
+                            >
                               <MapPin className="w-3 h-3 text-slate-400 shrink-0 mt-0.5" />
                               <span className="truncate">{user.address}</span>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-slate-400 italic">Chưa cập nhật địa chỉ</span>
+                            <span className="text-[11px] text-slate-400 italic">
+                              Chưa cập nhật địa chỉ
+                            </span>
                           )}
                         </div>
                       </td>
@@ -822,7 +851,7 @@ export const UserListPage: React.FC = () => {
                         </div>
                       </td>
                     </tr>
-                  )
+                  );
                 })
               )}
             </tbody>
@@ -842,7 +871,8 @@ export const UserListPage: React.FC = () => {
                 {Math.min(currentPage * pageSize, totalElements)}
               </span>{" "}
               trong tổng số{" "}
-              <span className="font-bold text-slate-800">{totalElements}</span> người dùng
+              <span className="font-bold text-slate-800">{totalElements}</span>{" "}
+              người dùng
             </div>
 
             <div className="flex items-center gap-1.5">
@@ -861,16 +891,22 @@ export const UserListPage: React.FC = () => {
                 {Array.from({ length: totalPages }, (_, idx) => idx + 1)
                   .filter((p) => {
                     // Show first, last, and pages close to current
-                    return p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1
+                    return (
+                      p === 1 ||
+                      p === totalPages ||
+                      Math.abs(p - currentPage) <= 1
+                    );
                   })
                   .map((p, idx, arr) => {
-                    const prev = arr[idx - 1]
-                    const showEllipsis = prev && p - prev > 1
+                    const prev = arr[idx - 1];
+                    const showEllipsis = prev && p - prev > 1;
 
                     return (
                       <React.Fragment key={`page-${p}`}>
                         {showEllipsis && (
-                          <span className="px-1 text-slate-400 select-none">...</span>
+                          <span className="px-1 text-slate-400 select-none">
+                            ...
+                          </span>
                         )}
                         <button
                           type="button"
@@ -884,14 +920,16 @@ export const UserListPage: React.FC = () => {
                           {p}
                         </button>
                       </React.Fragment>
-                    )
+                    );
                   })}
               </div>
 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
                 disabled={currentPage >= totalPages || isLoading}
                 className="h-8 px-2.5 text-xs font-semibold gap-1"
               >
@@ -908,8 +946,8 @@ export const UserListPage: React.FC = () => {
         user={editingUser}
         isOpen={isEditModalOpen}
         onClose={() => {
-          setIsEditModalOpen(false)
-          setEditingUser(null)
+          setIsEditModalOpen(false);
+          setEditingUser(null);
         }}
         onSave={handleSaveUser}
         currentAdminId={currentAdminId}
@@ -921,12 +959,12 @@ export const UserListPage: React.FC = () => {
         nextStatus={statusTargetNext}
         isOpen={isStatusModalOpen}
         onClose={() => {
-          setIsStatusModalOpen(false)
-          setStatusTargetUser(null)
+          setIsStatusModalOpen(false);
+          setStatusTargetUser(null);
         }}
         onConfirm={handleConfirmStatusChange}
         isSubmitting={isSubmittingStatus}
       />
     </div>
-  )
+  );
 }
