@@ -11,6 +11,9 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "Số 45, Đường 3/2, Phường Xuân Khánh, Quận Ninh Kiều, Cần Thơ",
     note: "Giao vào giờ hành chính, gọi trước 15 phút giúp mình nhé.",
+    subtotalAmount: 18490000,
+    discountAmount: 0,
+    voucherCode: undefined,
     totalAmount: 18490000,
     totalQuantity: 2,
     createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 phút trước
@@ -50,6 +53,9 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "Tầng 8, Tòa nhà Landmark 81, 720A Điện Biên Phủ, Phường 22, Bình Thạnh, TP.HCM",
     note: "Vui lòng kiểm tra đóng gói kỹ càng giúp em.",
+    subtotalAmount: 27350000,
+    discountAmount: 500000,
+    voucherCode: "PCKHAIXUAN",
     totalAmount: 26850000,
     totalQuantity: 1,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), // 3 giờ trước
@@ -61,14 +67,14 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
         pcCaseId: "pc-case-designer-pro",
         pcCaseName: "TechCraft Creator Pro 2025 (i7-13700 / RTX 4070 12GB)",
         useCase: "rendering",
-        unitPrice: 26850000,
+        unitPrice: 27350000,
         quantity: 1,
-        subtotal: 26850000,
+        subtotal: 27350000,
         pcCase: {
           id: "pc-case-designer-pro",
           name: "TechCraft Creator Pro 2025",
           useCase: "rendering",
-          totalPrice: 26850000,
+          totalPrice: 27350000,
           description: "Cấu hình đồ họa 3D, Premiere, Blender mượt mà",
           isActive: true,
           items: [
@@ -111,8 +117,11 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "Số 12 Ngõ 198, Phố Xã Đàn, Phường Phương Liên, Quận Đống Đa, Hà Nội",
     note: "Nếu tới bấm chuông phòng 302 nhé.",
+    subtotalAmount: 4350000,
+    discountAmount: 0,
+    voucherCode: undefined,
     totalAmount: 4350000,
-    totalQuantity: 3,
+    totalQuantity: 2,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 ngày trước
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
     items: [
@@ -150,6 +159,9 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "Khu đô thị Ecopark, Văn Giang, Hưng Yên",
     note: "",
+    subtotalAmount: 20040000,
+    discountAmount: 50000,
+    voucherCode: "TECH50K",
     totalAmount: 19990000,
     totalQuantity: 1,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 ngày trước
@@ -161,14 +173,14 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
         pcCaseId: "pc-case-gaming-entry",
         pcCaseName: "TechCraft Esports Champion 2025 (Ryzen 5 7600 / RTX 4060)",
         useCase: "gaming",
-        unitPrice: 19990000,
+        unitPrice: 20040000,
         quantity: 1,
-        subtotal: 19990000,
+        subtotal: 20040000,
         pcCase: {
           id: "pc-case-gaming-entry",
           name: "TechCraft Esports Champion 2025",
           useCase: "gaming",
-          totalPrice: 19990000,
+          totalPrice: 20040000,
           description: "Chiến mượt mọi tựa game AAA và Esport 144Hz",
           isActive: true,
           items: [
@@ -210,6 +222,9 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "Số 88 Trần Hưng Đạo, Phường 7, Tuy Hòa, Phú Yên",
     note: "Khách hàng đổi ý mua mẫu khác.",
+    subtotalAmount: 8500000,
+    discountAmount: 0,
+    voucherCode: undefined,
     totalAmount: 8500000,
     totalQuantity: 1,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // 3 ngày trước
@@ -238,6 +253,9 @@ export const MOCK_ADMIN_ORDERS: Order[] = [
     paymentMethod: "COD",
     shippingAddress: "15 Lê Duẩn, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
     note: "Giao gấp trong sáng mai nếu được.",
+    subtotalAmount: 3200000,
+    discountAmount: 0,
+    voucherCode: undefined,
     totalAmount: 3200000,
     totalQuantity: 2,
     createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 phút trước

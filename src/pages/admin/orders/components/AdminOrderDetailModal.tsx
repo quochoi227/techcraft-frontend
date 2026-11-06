@@ -21,6 +21,7 @@ import {
   Printer,
   ShieldAlert,
   Loader2,
+  Ticket,
 } from "lucide-react"
 import type { Order, OrderStatus } from "@/types/order"
 import {
@@ -140,6 +141,11 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
   const handlePrint = () => {
     window.print()
   }
+
+  const calculatedSubtotal =
+    order.subtotalAmount ||
+    (order.items?.reduce((s, i) => s + (i.subtotal || i.unitPrice * i.quantity), 0) ??
+      order.totalAmount + (order.discountAmount || 0))
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -348,7 +354,7 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
             <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-rose-800 text-xs">
               <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
               <span>
-                Đơn hàng này đã bị hủy. Toàn bộ số lượng tồn kho của linh kiện đã được tự động hoàn lại vào kho.
+                Đơn hàng này đã bị hủy. Toàn bộ số lượng tồn kho của linh kiện và lượt sử dụng voucher đã được tự động hoàn lại.
               </span>
             </div>
           )}
@@ -398,6 +404,24 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                     Thanh toán khi nhận hàng (COD)
                   </span>
                 </div>
+
+                {order.voucherCode && (
+                  <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                    <span className="text-slate-500 font-semibold text-xs flex items-center gap-1">
+                      <Ticket className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Voucher:</span>
+                      <strong className="text-emerald-700 font-mono">
+                        {order.voucherCode}
+                      </strong>
+                    </span>
+                    {order.discountAmount !== undefined && order.discountAmount > 0 && (
+                      <span className="text-xs font-bold text-emerald-600">
+                        -{formatVND(order.discountAmount)}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 {order.note && (
                   <div className="pt-1 text-slate-600 italic">
                     <span className="text-slate-400 font-medium not-italic text-xs flex items-center gap-1">
@@ -548,19 +572,34 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
           {/* Pricing Summary */}
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs sm:text-sm">
             <div className="flex items-center justify-between text-slate-600">
-              <span>Tổng tiền hàng:</span>
+              <span>Tổng tiền linh kiện:</span>
               <span className="font-bold text-slate-800">
-                {formatVND(order.totalAmount)}
+                {formatVND(calculatedSubtotal)}
               </span>
             </div>
+
+            {order.discountAmount !== undefined && order.discountAmount > 0 && (
+              <div className="flex items-center justify-between text-emerald-600">
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <Ticket className="w-3.5 h-3.5" />
+                  <span>Giảm giá khuyến mãi ({order.voucherCode || "Voucher"}):</span>
+                </span>
+                <span className="font-bold">
+                  -{formatVND(order.discountAmount)}
+                </span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between text-slate-600">
               <span>Phí giao hàng:</span>
               <span className="font-bold text-emerald-600">0 ₫ (Miễn phí)</span>
             </div>
+
             <div className="flex items-center justify-between text-slate-600">
               <span>Phương thức thanh toán:</span>
               <span className="font-bold text-slate-800">COD (Thu tiền tận nơi)</span>
             </div>
+
             <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-base font-black text-slate-900">
               <span>Tổng thanh toán:</span>
               <span className="text-blue-600 text-lg">
