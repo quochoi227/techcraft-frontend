@@ -213,7 +213,7 @@ export const Header: React.FC = () => {
                           }`}
                         >
                           <Sparkles className="w-2.5 h-2.5" />
-                          {user.role === "ADMIN" ? "Quản trị viên (Admin)" : "Khách hàng thành viên"}
+                          {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng thành viên"}
                         </span>
                       </div>
                     </div>

@@ -280,16 +280,6 @@ export const AiConsultantPage: React.FC = () => {
 
         {/* Right Status Badges & Mobile Menu Button */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>AI Sẵn sàng</span>
-          </div>
-
-          <div className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold">
-            <Sparkles className="w-3 h-3" />
-            <span>Gemini AI + pgvector RAG</span>
-          </div>
-
           {/* Mobile button to open suggested questions sidebar */}
           <Button
             variant="outline"
@@ -482,22 +472,24 @@ export const AiConsultantPage: React.FC = () => {
           </div>
 
           {/* Quick Prompts Carousel Bar (above input) */}
-          <div className="shrink-0 px-3.5 py-1.5 border-t border-slate-100 bg-slate-50/70 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
-            <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-blue-600" />
-              Gợi ý nhanh:
-            </span>
-            {SUGGESTED_PROMPTS.slice(0, 4).map((p) => (
-              <button
-                key={p.id}
-                disabled={isLoading}
-                onClick={() => handleSendMessage(p.prompt)}
-                className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 text-[11px] font-medium transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {p.title}
-              </button>
-            ))}
-          </div>
+          {messages.length > 0 && (
+            <div className="shrink-0 px-3.5 py-1.5 border-t border-slate-100 bg-slate-50/70 overflow-x-auto flex items-center gap-1.5 no-scrollbar">
+              <span className="text-[11px] font-bold text-slate-400 whitespace-nowrap flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-blue-600" />
+                Gợi ý nhanh:
+              </span>
+              {SUGGESTED_PROMPTS.slice(0, 4).map((p) => (
+                <button
+                  key={p.id}
+                  disabled={isLoading}
+                  onClick={() => handleSendMessage(p.prompt)}
+                  className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 text-[11px] font-medium transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {p.title}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Input Box Area (ALWAYS visible at the bottom without scrolling) */}
           <div className="shrink-0 p-2.5 sm:p-3 border-t border-slate-200 bg-white">

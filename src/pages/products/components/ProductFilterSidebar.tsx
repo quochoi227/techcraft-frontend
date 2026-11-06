@@ -79,7 +79,9 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   return (
     <aside
       className={`space-y-6 ${
-        isMobileDrawer ? "p-4" : "p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs"
+        isMobileDrawer
+          ? "p-4"
+          : "p-5 bg-white rounded-2xl border border-slate-200/80 shadow-xs"
       }`}
     >
       {/* Header of Filter */}
@@ -99,7 +101,38 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
         </button>
       </div>
 
-      {/* 1. Category Filter Section */}
+      {/* 1. Availability Filter */}
+      <div className="space-y-3 pt-4 border-t border-slate-100">
+        <button
+          type="button"
+          onClick={() => setIsStockExpanded(!isStockExpanded)}
+          className="w-full flex items-center justify-between text-sm font-bold text-slate-800"
+        >
+          <span className="flex items-center gap-2">
+            <PackageCheck className="w-4 h-4 text-blue-500" />
+            Tình trạng hàng
+          </span>
+          <ChevronDown
+            className={`w-4 h-4 text-slate-400 transition-transform ${
+              isStockExpanded ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {isStockExpanded && (
+          <div className="space-y-2 pt-1">
+            <label className="flex items-center gap-2.5 text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900 select-none">
+              <Checkbox
+                checked={onlyInStock}
+                onCheckedChange={(checked) => onToggleInStock(Boolean(checked))}
+              />
+              <span>Chỉ hiển thị sản phẩm còn hàng</span>
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Category Filter Section */}
       <div className="space-y-3">
         <button
           type="button"
@@ -120,19 +153,21 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
         {isCategoryExpanded && (
           <div className="space-y-1 pt-1">
             {categoriesList.map((catKey) => {
-              const isAll = catKey === "ALL"
-              const isSelected = selectedCategory === catKey
-              const meta = !isAll ? CATEGORIES_META[catKey as ProductCategory] : null
-              const Icon = meta?.icon
+              const isAll = catKey === "ALL";
+              const isSelected = selectedCategory === catKey;
+              const meta = !isAll
+                ? CATEGORIES_META[catKey as ProductCategory]
+                : null;
+              const Icon = meta?.icon;
 
               return (
                 <button
                   key={catKey}
                   type="button"
                   onClick={() => {
-                    onSelectCategory(catKey)
+                    onSelectCategory(catKey);
                     if (isMobileDrawer && onCloseMobileDrawer) {
-                      onCloseMobileDrawer()
+                      onCloseMobileDrawer();
                     }
                   }}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -145,26 +180,28 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                     {Icon ? (
                       <Icon
                         className={`w-4 h-4 ${
-                          isSelected ? "text-white" : meta?.colorClass || "text-slate-400"
+                          isSelected
+                            ? "text-white"
+                            : meta?.colorClass || "text-slate-400"
                         }`}
                       />
                     ) : (
-                      <Layers className={`w-4 h-4 ${isSelected ? "text-white" : "text-blue-500"}`} />
+                      <Layers
+                        className={`w-4 h-4 ${isSelected ? "text-white" : "text-blue-500"}`}
+                      />
                     )}
                     <span>{isAll ? "Tất cả linh kiện" : meta?.label}</span>
                   </div>
 
-                  {isSelected && (
-                    <Check className="w-3.5 h-3.5 text-white" />
-                  )}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                 </button>
-              )
+              );
             })}
           </div>
         )}
       </div>
 
-      {/* 2. Price Range Filter Section */}
+      {/* 3. Price Range Filter Section */}
       <div className="space-y-3 pt-4 border-t border-slate-100">
         <button
           type="button"
@@ -187,15 +224,15 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             {/* Quick Presets */}
             <div className="space-y-1.5">
               {PRICE_RANGE_PRESETS.map((preset) => {
-                const isSelected = selectedPricePresetId === preset.id
+                const isSelected = selectedPricePresetId === preset.id;
                 return (
                   <button
                     key={preset.id}
                     type="button"
                     onClick={() => {
-                      onSelectPricePreset(preset)
+                      onSelectPricePreset(preset);
                       if (isMobileDrawer && onCloseMobileDrawer) {
-                        onCloseMobileDrawer()
+                        onCloseMobileDrawer();
                       }
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -212,10 +249,12 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
                           : "border-slate-300"
                       }`}
                     >
-                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      {isSelected && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
                     </span>
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -257,37 +296,6 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
         )}
       </div>
 
-      {/* 3. Availability Filter */}
-      <div className="space-y-3 pt-4 border-t border-slate-100">
-        <button
-          type="button"
-          onClick={() => setIsStockExpanded(!isStockExpanded)}
-          className="w-full flex items-center justify-between text-sm font-bold text-slate-800"
-        >
-          <span className="flex items-center gap-2">
-            <PackageCheck className="w-4 h-4 text-blue-500" />
-            Tình trạng hàng
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 text-slate-400 transition-transform ${
-              isStockExpanded ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-
-        {isStockExpanded && (
-          <div className="space-y-2 pt-1">
-            <label className="flex items-center gap-2.5 text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900 select-none">
-              <Checkbox
-                checked={onlyInStock}
-                onCheckedChange={(checked) => onToggleInStock(Boolean(checked))}
-              />
-              <span>Chỉ hiển thị sản phẩm còn hàng</span>
-            </label>
-          </div>
-        )}
-      </div>
-
       {/* Mobile Drawer Close Button */}
       {isMobileDrawer && (
         <div className="pt-6">
@@ -296,10 +304,11 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             onClick={onCloseMobileDrawer}
           >
-            Xem kết quả {totalCount !== undefined ? `(${totalCount} sản phẩm)` : ""}
+            Xem kết quả{" "}
+            {totalCount !== undefined ? `(${totalCount} sản phẩm)` : ""}
           </Button>
         </div>
       )}
     </aside>
-  )
+  );
 }
