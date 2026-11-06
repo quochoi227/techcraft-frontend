@@ -1,11 +1,7 @@
 import React from "react"
 import {
   Sparkles,
-  ShieldCheck,
   RotateCcw,
-  PhoneCall,
-  Mail,
-  HelpCircle,
   Zap,
   CheckCircle,
   FileCheck2,
@@ -115,7 +111,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       </div>
 
       {/* Box 2: Suggested Questions */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-xs space-y-2.5 shrink-0">
+      {/* <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-xs space-y-2.5 shrink-0">
         <div className="flex items-center gap-1.5 font-bold text-slate-900 text-xs uppercase tracking-wider">
           <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
           <span>Câu hỏi gợi ý nhanh</span>
@@ -142,10 +138,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Box 3: Hotline & Support Help */}
-      <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-3.5 shadow-xs space-y-2 shrink-0">
+      {/* <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-3.5 shadow-xs space-y-2 shrink-0">
         <div className="flex items-center gap-1.5 text-xs font-bold text-blue-300 uppercase tracking-wider">
           <ShieldCheck className="w-4 h-4 text-blue-400" />
           <span>Hỗ trợ kỹ thuật trực tiếp</span>
@@ -169,7 +165,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             <span className="truncate">admin@techcraft.com</span>
           </a>
         </div>
-      </div>
+      </div> */}
     </aside>
   )
 }
