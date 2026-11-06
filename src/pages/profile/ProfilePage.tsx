@@ -253,7 +253,7 @@ export const ProfilePage: React.FC = () => {
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                {user.role === "ADMIN" ? "Quản trị viên (Admin)" : "Khách hàng thành viên"}
+                {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng thành viên"}
               </span>
             </div>
 
@@ -343,7 +343,7 @@ export const ProfilePage: React.FC = () => {
                         <span>Vai trò tài khoản:</span>
                       </span>
                       <p className="font-bold text-slate-800 text-sm">
-                        {user.role === "ADMIN" ? "Quản trị viên (Admin)" : "Khách hàng (User)"}
+                        {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng"}
                       </p>
                     </div>
 
@@ -485,7 +485,7 @@ export const ProfilePage: React.FC = () => {
                         <span>Vai trò hệ thống</span>
                       </Label>
                       <div className="h-11 px-3.5 rounded-xl bg-slate-100/80 border border-slate-200 flex items-center text-sm font-semibold text-slate-600 select-none">
-                        {user.role === "ADMIN" ? "Quản trị viên (Admin)" : "Khách hàng (User)"}
+                        {user.role === "ADMIN" ? "Quản trị viên" : "Khách hàng"}
                       </div>
                     </div>
 
