@@ -27,8 +27,7 @@ export const Footer: React.FC = () => {
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                 <span>
-                  <strong>Hà Nội:</strong> 102 Thái Hà, Đống Đa |{" "}
-                  <strong>TP.HCM:</strong> 245 Cống Quỳnh, Q.1
+                  Địa chỉ: Đường 3 tháng 2, Ninh Kiều, Cần Thơ, Việt Nam
                 </span>
               </div>
               <div className="flex items-center gap-2.5">
@@ -51,7 +50,7 @@ export const Footer: React.FC = () => {
                   to="/compatibility-checker"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Compatibility Checker
+                  Kiểm tra tương thích linh kiện
                 </Link>
               </li>
               <li>
@@ -59,7 +58,7 @@ export const Footer: React.FC = () => {
                   to="/ai-diagnostic"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  AI Diagnostic Tool
+                  Tư vấn AI
                 </Link>
               </li>
               <li>
@@ -67,7 +66,7 @@ export const Footer: React.FC = () => {
                   to="/custom-pc"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Custom Rig Builder
+                  Tư vấn lắp ráp PC theo nhu cầu
                 </Link>
               </li>
               <li>
@@ -92,7 +91,7 @@ export const Footer: React.FC = () => {
                   to="/policies/warranty"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Warranty Policy
+                  Chính sách bảo hành
                 </Link>
               </li>
               <li>
@@ -100,7 +99,7 @@ export const Footer: React.FC = () => {
                   to="/policies/shipping"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Shipping & Returns
+                  Chính sách vận chuyển
                 </Link>
               </li>
               <li>
@@ -108,7 +107,7 @@ export const Footer: React.FC = () => {
                   to="/policies/privacy"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Privacy Policy
+                  Chính sách bảo mật
                 </Link>
               </li>
               <li>
@@ -116,7 +115,7 @@ export const Footer: React.FC = () => {
                   to="/support"
                   className="hover:text-blue-600 transition-colors"
                 >
-                  Contact Support
+                  Hỗ trợ khách hàng
                 </Link>
               </li>
             </ul>
@@ -126,9 +125,6 @@ export const Footer: React.FC = () => {
         {/* Dòng copyright & chứng nhận */}
         <div className="mt-12 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <p>© 2025 TechCraft PC Inc. High-performance computing crafted with precision. All rights reserved.</p>
-          <p className="text-right">
-            Chứng nhận đại lý ủy quyền: <span className="text-slate-500 font-medium">Intel, AMD, NVIDIA, ASUS ROG</span>
-          </p>
         </div>
       </div>
     </footer>

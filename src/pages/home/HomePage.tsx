@@ -9,14 +9,6 @@ export const HomePage: React.FC = () => {
       {/* Hero Section Banner */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-blue-50/50 to-white">
         <div className="max-w-5xl mx-auto text-center space-y-6">
-          <Link
-            to="/ai-consultant"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/80 hover:bg-blue-200/80 text-blue-700 text-xs font-semibold transition-colors"
-          >
-            <Bot className="w-3.5 h-3.5 text-blue-600" />
-            <span>Trợ lý AI build PC thông minh đầu tiên tại Việt Nam</span>
-            <Sparkles className="w-3 h-3 text-amber-500" />
-          </Link>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
             Xây dựng dàn PC hoàn hảo với{" "}
