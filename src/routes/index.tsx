@@ -18,6 +18,7 @@ import { AiConsultantPage } from "@/pages/chat/AiConsultantPage"
 import { ProductListPage } from "@/pages/admin/products/ProductListPage"
 import { DashboardPage } from "@/pages/admin/dashboard/DashboardPage"
 import { OrderListPage } from "@/pages/admin/orders/OrderListPage"
+import { VoucherListPage } from "@/pages/admin/vouchers/VoucherListPage"
 import { PcCaseListPage } from "@/pages/admin/pc-cases/PcCaseListPage"
 import { RagAiPage } from "@/pages/admin/rag-ai/RagAiPage"
 import { UserListPage } from "@/pages/admin/users/UserListPage"
@@ -107,6 +108,10 @@ export const router = createBrowserRouter([
       {
         path: "orders",
         element: <OrderListPage />,
+      },
+      {
+        path: "vouchers",
+        element: <VoucherListPage />,
       },
       {
         path: "pc-cases",

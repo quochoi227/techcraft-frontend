@@ -18,6 +18,7 @@ import {
   Cpu,
   Layers,
   SlidersHorizontal,
+  Ticket,
 } from "lucide-react"
 import type {
   Order,
@@ -177,7 +178,8 @@ export const OrderListPage: React.FC = () => {
             const matchName = o.userFullName?.toLowerCase().includes(q)
             const matchPhone = o.userPhone?.toLowerCase().includes(q)
             const matchAddress = o.shippingAddress?.toLowerCase().includes(q)
-            return matchId || matchEmail || matchName || matchPhone || matchAddress
+            const matchVoucher = o.voucherCode?.toLowerCase().includes(q)
+            return matchId || matchEmail || matchName || matchPhone || matchAddress || matchVoucher
           })
         }
         if (paymentFilter !== "ALL") {
@@ -279,7 +281,6 @@ export const OrderListPage: React.FC = () => {
       setOrderToUpdate(null)
     } catch (err: any) {
       console.error("Lỗi cập nhật trạng thái đơn:", err)
-      // Axios interceptor đã hiện toast lỗi
     } finally {
       setIsUpdatingStatus(false)
     }
@@ -478,7 +479,7 @@ export const OrderListPage: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <Input
               type="text"
-              placeholder="Tìm theo Mã đơn, Khách hàng, Email, SĐT, Địa chỉ..."
+              placeholder="Tìm theo Mã đơn, Mã voucher, Khách hàng, Email, SĐT..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-10 rounded-xl border-slate-200 bg-slate-50/50 text-xs focus:bg-white"
@@ -546,7 +547,6 @@ export const OrderListPage: React.FC = () => {
       {/* Orders Table Container */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
         {isLoading ? (
-          /* Table Skeleton Loader */
           <div className="p-8 space-y-4">
             <div className="h-6 bg-slate-100 rounded-lg w-1/4 animate-pulse" />
             <div className="space-y-3">
@@ -556,7 +556,6 @@ export const OrderListPage: React.FC = () => {
             </div>
           </div>
         ) : orders.length === 0 ? (
-          /* Empty State */
           <div className="py-16 px-6 text-center space-y-4 max-w-md mx-auto">
             <div className="w-16 h-16 rounded-3xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
               <ShoppingBag className="w-8 h-8" />
@@ -579,7 +578,6 @@ export const OrderListPage: React.FC = () => {
             </Button>
           </div>
         ) : (
-          /* Real Data Table */
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -712,11 +710,22 @@ export const OrderListPage: React.FC = () => {
                         })()}
                       </td>
 
-                      {/* Total Amount */}
+                      {/* Total Amount + Voucher Badge */}
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <span className="font-black text-slate-900 text-sm">
-                          {formatVND(order.totalAmount)}
-                        </span>
+                        <div className="space-y-1">
+                          <span className="font-black text-slate-900 text-sm block">
+                            {formatVND(order.totalAmount)}
+                          </span>
+                          {order.voucherCode && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              <Ticket className="w-2.5 h-2.5" />
+                              <span>{order.voucherCode}</span>
+                              {order.discountAmount !== undefined && order.discountAmount > 0 && (
+                                <span className="font-semibold">(-{formatVND(order.discountAmount)})</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Payment Method */}
@@ -766,7 +775,7 @@ export const OrderListPage: React.FC = () => {
                             <Eye className="w-4 h-4" />
                           </button>
 
-                          {/* Cancel Button (nếu còn có thể hủy) */}
+                          {/* Cancel Button */}
                           {validStatuses.includes("CANCELLED") && (
                             <button
                               type="button"
@@ -808,7 +817,6 @@ export const OrderListPage: React.FC = () => {
               </Button>
 
               {[...Array(totalPages)].map((_, idx) => {
-                // Chỉ hiển thị tối đa 5 nút trang
                 if (
                   idx === 0 ||
                   idx === totalPages - 1 ||

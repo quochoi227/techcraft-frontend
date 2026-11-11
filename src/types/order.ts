@@ -56,6 +56,7 @@ export interface CreateOrderPayload {
   shippingAddress: string
   paymentMethod?: PaymentMethod
   note?: string
+  voucherCode?: string
   items?: CreateOrderItemPayload[]
 }
 
@@ -86,6 +87,9 @@ export interface Order {
   paymentMethod: PaymentMethod
   shippingAddress: string
   note?: string
+  subtotalAmount?: number
+  discountAmount?: number
+  voucherCode?: string
   totalAmount: number
   totalQuantity: number
   items: OrderItem[]

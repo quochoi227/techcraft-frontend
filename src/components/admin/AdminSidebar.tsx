@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Layers,
   ShoppingBag,
+  Ticket,
   Boxes,
   Database,
   Users,
@@ -30,6 +31,7 @@ export const AdminSidebar: React.FC = () => {
       navigate("/login")
     }
   }
+
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-screen sticky top-0 z-30 select-none">
       {/* Brand Logo Header */}
@@ -54,7 +56,7 @@ export const AdminSidebar: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-blue-50 text-blue-600"
+                    ? "bg-blue-50 text-blue-600 font-semibold"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`
               }
@@ -91,6 +93,20 @@ export const AdminSidebar: React.FC = () => {
                 <ShoppingBag className="w-4 h-4 shrink-0" />
                 <span>Quản lý đơn hàng</span>
               </div>
+            </NavLink>
+
+            <NavLink
+              to="/admin/vouchers"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-blue-50 text-blue-600 font-semibold"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`
+              }
+            >
+              <Ticket className="w-4 h-4 shrink-0" />
+              <span>Quản lý mã giảm giá</span>
             </NavLink>
 
             <NavLink

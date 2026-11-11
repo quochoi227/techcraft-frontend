@@ -15,6 +15,7 @@ import {
   Loader2,
   Box,
   Cpu,
+  Ticket,
 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore"
 import { useCheckoutStore } from "@/stores/checkoutStore"
@@ -171,13 +172,14 @@ export const OrderHistoryPage: React.FC = () => {
     const query = searchQuery.toLowerCase().trim()
     return orders.filter((order) => {
       const matchId = order.id.toLowerCase().includes(query)
+      const matchVoucher = (order.voucherCode || "").toLowerCase().includes(query)
       const matchAddress = (order.shippingAddress || "").toLowerCase().includes(query)
       const matchItem = (order.items || []).some(
         (i) =>
           (i.productName || i.product?.name || "").toLowerCase().includes(query) ||
           (i.pcCaseName || i.pcCase?.name || "").toLowerCase().includes(query)
       )
-      return matchId || matchAddress || matchItem
+      return matchId || matchVoucher || matchAddress || matchItem
     })
   }, [orders, searchQuery])
 
@@ -258,7 +260,7 @@ export const OrderHistoryPage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm theo mã đơn hoặc tên linh kiện..."
+                placeholder="Tìm theo mã đơn, mã voucher hoặc tên sản phẩm..."
                 className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition"
               />
             </div>
@@ -358,7 +360,7 @@ export const OrderHistoryPage: React.FC = () => {
                   key={order.id}
                   className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs hover:border-slate-300 transition-all space-y-4"
                 >
-                  {/* Card Header: Order ID, Date, Status */}
+                  {/* Card Header: Order ID, Date, Voucher Badge & Status */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs text-slate-400 font-medium">Mã đơn:</span>
@@ -384,7 +386,17 @@ export const OrderHistoryPage: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {order.voucherCode && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <Ticket className="w-3 h-3" />
+                          <span>{order.voucherCode}</span>
+                          {order.discountAmount !== undefined && order.discountAmount > 0 && (
+                            <span className="font-semibold">(-{formatPrice(order.discountAmount)})</span>
+                          )}
+                        </span>
+                      )}
+
                       <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${statusMeta.badgeClass}`}
                       >
@@ -486,12 +498,22 @@ export const OrderHistoryPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
-                      <div>
+                      <div className="text-right">
                         <div className="text-[10px] text-slate-400 uppercase font-semibold">
                           Tổng thanh toán
                         </div>
-                        <div className="text-base sm:text-lg font-black text-blue-600">
-                          {formatPrice(order.totalAmount)}
+                        <div className="flex items-baseline gap-1.5 justify-end">
+                          {order.discountAmount !== undefined && order.discountAmount > 0 && (
+                            <span className="text-xs text-slate-400 line-through">
+                              {formatPrice(
+                                order.subtotalAmount ||
+                                  order.totalAmount + order.discountAmount
+                              )}
+                            </span>
+                          )}
+                          <span className="text-base sm:text-lg font-black text-blue-600">
+                            {formatPrice(order.totalAmount)}
+                          </span>
                         </div>
                       </div>
 
@@ -601,7 +623,7 @@ export const OrderHistoryPage: React.FC = () => {
                 <strong className="text-blue-600">
                   {formatPrice(orderToCancel.totalAmount)}
                 </strong>
-                ? Hành động này không thể hoàn tác.
+                ? Hành động này không thể hoàn tác và số lượng linh kiện sẽ được tự động hoàn lại.
               </p>
             </div>
 
