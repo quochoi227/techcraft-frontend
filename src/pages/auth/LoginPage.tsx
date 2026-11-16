@@ -40,11 +40,13 @@ export const LoginPage: React.FC = () => {
     email?: string
     registered?: boolean
     verified?: boolean
+    passwordReset?: boolean
   } | null
 
   const registeredEmail = locationState?.email || ""
   const isRegisteredSuccess = Boolean(locationState?.registered)
   const isVerifiedSuccess = Boolean(locationState?.verified)
+  const isPasswordResetSuccess = Boolean(locationState?.passwordReset)
 
   const setAuth = useAuthStore((state) => state.setAuth)
 
@@ -149,6 +151,21 @@ export const LoginPage: React.FC = () => {
             Chào mừng bạn quay trở lại với TechCraft PC
           </p>
         </div>
+
+        {/* Thông báo đặt lại mật khẩu thành công */}
+        {isPasswordResetSuccess && (
+          <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 space-y-1.5 animate-in fade-in flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-semibold text-emerald-900">
+                Đặt lại mật khẩu thành công!
+              </p>
+              <p className="text-emerald-700 leading-relaxed">
+                Mật khẩu của bạn đã được cập nhật thành công. Vui lòng đăng nhập bằng mật khẩu mới của bạn.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Thông báo xác thực email thành công */}
         {isVerifiedSuccess && (

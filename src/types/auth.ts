@@ -62,3 +62,12 @@ export interface RegisterResponseData {
   role: UserRole
   emailVerified: boolean
 }
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  token: string
+  newPassword: string
+}

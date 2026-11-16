@@ -4,6 +4,8 @@ import { AdminLayout } from "@/components/layout/AdminLayout"
 import { RegisterPage } from "@/pages/auth/RegisterPage"
 import { LoginPage } from "@/pages/auth/LoginPage"
 import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage"
+import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage"
+import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage"
 import { HomePage } from "@/pages/home/HomePage"
 import { NotFoundPage } from "@/pages/not-found/NotFoundPage"
 import { ProductListPage as UserProductListPage } from "@/pages/products/ProductListPage"
@@ -44,6 +46,14 @@ export const router = createBrowserRouter([
       {
         path: "verify-email",
         element: <VerifyEmailPage />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPasswordPage />,
       },
       {
         path: "products",
