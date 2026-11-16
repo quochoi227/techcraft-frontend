@@ -95,7 +95,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to="/admin/products" replace />,
+        element: <Navigate to="/admin/dashboard" replace />,
       },
       {
         path: "products",
