@@ -27,6 +27,7 @@ import { ORDER_STATUS_META } from "@/types/order"
 import { Button } from "@/components/ui/button"
 import { OrderDetailModal } from "./components/OrderDetailModal"
 import { toast } from "sonner"
+import { useOrderRefreshOnNotification } from "@/hooks/useOrderRefreshOnNotification"
 
 const PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
@@ -105,6 +106,13 @@ export const OrderHistoryPage: React.FC = () => {
   useEffect(() => {
     fetchOrders()
   }, [fetchOrders])
+
+  // Tự động reload danh sách khi có thông báo realtime trạng thái đơn thay đổi
+  useOrderRefreshOnNotification(useCallback(() => {
+    setTimeout(() => {
+      fetchOrders()
+    }, 500);
+  }, [fetchOrders]))
 
   const handleCopyId = (id: string) => {
     navigator.clipboard.writeText(id)

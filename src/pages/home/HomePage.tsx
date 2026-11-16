@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom"
-import { Cpu, Bot, ArrowRight, ShieldCheck, Zap, Sparkles } from "lucide-react"
+import { Cpu, Bot, ArrowRight, ShieldCheck, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export const HomePage: React.FC = () => {

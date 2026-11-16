@@ -4,8 +4,12 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminHeader } from "@/components/admin/AdminHeader"
 import { AdminFooter } from "@/components/admin/AdminFooter"
 import { Toaster } from "sonner"
+import { useRealtimeNotification } from "@/hooks/useRealtimeNotification"
 
 export const AdminLayout: React.FC = () => {
+  // Kích hoạt kết nối WebSocket realtime duy nhất cho Admin
+  useRealtimeNotification()
+
   return (
     <div className="h-screen flex bg-slate-50/50 text-slate-800 antialiased font-sans overflow-hidden">
       {/* Sidebar bên trái */}

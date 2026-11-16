@@ -25,6 +25,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { useCartStore } from "@/stores/cartStore"
 import { authService } from "@/services/api/authService"
 import { toast } from "sonner"
+import { NotificationDropdown } from "@/components/common/NotificationDropdown"
 
 export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
@@ -142,6 +143,11 @@ export const Header: React.FC = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
+            {/* Notification Bell (khi đã đăng nhập) */}
+            {isAuthenticated && user && (
+              <NotificationDropdown role={user.role} align="end" />
+            )}
+
             {/* Cart Icon */}
             <Link
               to="/cart"
