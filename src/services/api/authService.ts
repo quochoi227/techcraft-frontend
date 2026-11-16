@@ -19,6 +19,15 @@ export interface RegisterRequest {
   address?: string
 }
 
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  newPassword: string
+}
+
 export const authService = {
   /**
    * Đăng ký tài khoản người dùng mới
@@ -53,5 +62,19 @@ export const authService = {
    */
   verifyEmail: async (token: string): Promise<ApiResponse<null>> => {
     return axiosClient.get(`/auth/verify-email?token=${encodeURIComponent(token)}`)
+  },
+
+  /**
+   * Yêu cầu đặt lại mật khẩu (gửi link xác nhận qua Resend)
+   */
+  forgotPassword: async (payload: ForgotPasswordRequest): Promise<ApiResponse<null>> => {
+    return axiosClient.post("/auth/forgot-password", payload)
+  },
+
+  /**
+   * Đặt lại mật khẩu mới bằng mã token nhận được từ email
+   */
+  resetPassword: async (payload: ResetPasswordRequest): Promise<ApiResponse<null>> => {
+    return axiosClient.post("/auth/reset-password", payload)
   },
 }

@@ -142,6 +142,11 @@ export const StatisticsDateFilter: React.FC<StatisticsDateFilterProps> = ({
 
       {/* Action Buttons & Status indicator */}
       <div className="flex flex-wrap items-center gap-2">
+        {isUsingFallback && (
+          <span className="text-[11px] font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+            Dữ liệu dự phòng
+          </span>
+        )}
         
         {/* Refresh button */}
         <Button
