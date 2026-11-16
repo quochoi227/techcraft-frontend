@@ -6,11 +6,15 @@ import { FloatingAiButton } from "@/components/common/FloatingAiButton"
 import { Toaster } from "sonner"
 import { useAuthStore } from "@/stores/authStore"
 import { useCartStore } from "@/stores/cartStore"
+import { useRealtimeNotification } from "@/hooks/useRealtimeNotification"
 
 export const MainLayout: React.FC = () => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const fetchCart = useCartStore((s) => s.fetchCart)
   const location = useLocation()
+
+  // Kích hoạt kết nối WebSocket realtime duy nhất cho User
+  useRealtimeNotification()
 
   const isChatPage =
     location.pathname.startsWith("/ai-consultant") ||

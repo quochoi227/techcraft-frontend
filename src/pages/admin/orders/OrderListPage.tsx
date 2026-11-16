@@ -40,6 +40,7 @@ import { orderService } from "@/services/api/orderService"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { useOrderRefreshOnNotification } from "@/hooks/useOrderRefreshOnNotification"
 
 const formatVND = (price: number): string => {
   if (typeof price !== "number" || isNaN(price)) return "0 ₫"
@@ -209,6 +210,13 @@ export const OrderListPage: React.FC = () => {
   useEffect(() => {
     fetchOrders(currentPage)
   }, [fetchOrders, currentPage])
+
+  // Tự động reload danh sách khi có thông báo đơn mới hoặc đơn hủy
+  useOrderRefreshOnNotification(useCallback(() => {
+    setTimeout(() => {
+      fetchOrders(0)
+    }, 500);
+  }, [fetchOrders]))
 
   // KPI Calculations
   const stats = useMemo(() => {

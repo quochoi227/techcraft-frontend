@@ -61,7 +61,6 @@ export const SUGGESTED_PROMPTS: SuggestedPrompt[] = [
 ]
 
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
-  onSelectPrompt,
   onClearChat,
   messageCount,
 }) => {

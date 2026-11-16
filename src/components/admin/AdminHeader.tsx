@@ -1,5 +1,5 @@
 import React from "react"
-import { Bell } from "lucide-react"
+import { NotificationDropdown } from "@/components/common/NotificationDropdown"
 import { useLocation, Link } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 
@@ -72,16 +72,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumbs }) => {
 
       {/* Right Controls: Notifications & User Profile */}
       <div className="flex items-center gap-5">
-        {/* Notification Bell */}
-        <button
-          className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-          title="Thông báo mới"
-        >
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
-            5
-          </span>
-        </button>
+        {/* Notification Bell Dropdown */}
+        <NotificationDropdown role="ADMIN" align="end" />
 
         {/* User Info & Avatar */}
         <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
@@ -103,4 +95,3 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ breadcrumbs }) => {
     </header>
   )
 }
-
