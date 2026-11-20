@@ -5,6 +5,7 @@ import {
   Calendar,
   MapPin,
   Banknote,
+  QrCode,
   Copy,
   Check,
   AlertTriangle,
@@ -398,11 +399,31 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
                     {order.shippingAddress}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 pt-1 border-t border-slate-200/60">
-                  <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span className="font-bold text-slate-800">
-                    Thanh toán khi nhận hàng (COD)
-                  </span>
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-200/60 flex-wrap">
+                  {order.paymentMethod === "SEPAY" ? (
+                    <>
+                      <QrCode className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span className="font-bold text-slate-800">
+                        Chuyển khoản VietQR (SePay)
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          order.paymentStatus === "PAID"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chờ thanh toán"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="font-bold text-slate-800">
+                        Thanh toán khi nhận hàng (COD)
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {order.voucherCode && (
@@ -597,7 +618,9 @@ export const AdminOrderDetailModal: React.FC<AdminOrderDetailModalProps> = ({
 
             <div className="flex items-center justify-between text-slate-600">
               <span>Phương thức thanh toán:</span>
-              <span className="font-bold text-slate-800">COD (Thu tiền tận nơi)</span>
+              <span className="font-bold text-slate-800">
+                {order.paymentMethod === "SEPAY" ? "Chuyển khoản VietQR (SePay)" : "COD (Thu tiền tận nơi)"}
+              </span>
             </div>
 
             <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-base font-black text-slate-900">

@@ -515,6 +515,7 @@ export const OrderListPage: React.FC = () => {
             >
               <option value="ALL">Tất cả thanh toán</option>
               <option value="COD">Thanh toán khi nhận (COD)</option>
+              <option value="SEPAY">Chuyển khoản VietQR (SePay)</option>
             </select>
           </div>
 
@@ -738,9 +739,22 @@ export const OrderListPage: React.FC = () => {
 
                       {/* Payment Method */}
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                          {order.paymentMethod || "COD"}
-                        </span>
+                        <div className="flex flex-col gap-1 items-start">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {order.paymentMethod === "SEPAY" ? "VietQR (SePay)" : "COD"}
+                          </span>
+                          {order.paymentMethod === "SEPAY" && (
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                order.paymentStatus === "PAID"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chờ thanh toán"}
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Status Badge */}

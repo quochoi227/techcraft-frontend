@@ -5,6 +5,7 @@ import {
   Calendar,
   MapPin,
   Banknote,
+  QrCode,
   Copy,
   Check,
   AlertTriangle,
@@ -288,12 +289,31 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
             <div className="space-y-1">
               <span className="text-slate-400 font-medium flex items-center gap-1">
-                <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                {order.paymentMethod === "SEPAY" ? (
+                  <QrCode className="w-3.5 h-3.5 text-blue-600" />
+                ) : (
+                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+                )}
                 <span>Phương thức thanh toán:</span>
               </span>
-              <p className="font-bold text-slate-800">
-                Thanh toán tiền mặt khi nhận hàng (COD)
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="font-bold text-slate-800">
+                  {order.paymentMethod === "SEPAY"
+                    ? "Chuyển khoản VietQR (SePay)"
+                    : "Thanh toán tiền mặt khi nhận hàng (COD)"}
+                </p>
+                {order.paymentMethod === "SEPAY" && (
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      order.paymentStatus === "PAID"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chờ thanh toán"}
+                  </span>
+                )}
+              </div>
             </div>
 
             {order.voucherCode && (
@@ -317,6 +337,25 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               <div className="sm:col-span-2 pt-2 border-t border-slate-200/60 space-y-0.5">
                 <span className="text-slate-400 font-medium">Ghi chú từ bạn:</span>
                 <p className="font-medium text-slate-700 italic">"{order.note}"</p>
+              </div>
+            )}
+
+            {order.paymentMethod === "SEPAY" && order.paymentStatus !== "PAID" && order.status === "PENDING" && (
+              <div className="sm:col-span-2 pt-3 border-t border-slate-200/60 flex flex-col sm:flex-row items-center gap-4 p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200/80">
+                <img
+                  src={
+                    order.paymentQrUrl ||
+                    `https://qr.sepay.vn/img?bank=Vietcombank&acc=0000000001&template=compact&amount=${order.totalAmount}&des=${order.orderCode || String(order.id).slice(0, 8).toUpperCase()}`
+                  }
+                  alt="QR SePay"
+                  className="w-28 h-28 object-contain rounded-lg border border-amber-200 bg-white p-1 shrink-0"
+                />
+                <div className="space-y-1 text-xs text-amber-900">
+                  <span className="font-bold text-sm block">Đơn hàng chưa thanh toán</span>
+                  <p>
+                    Quét mã VietQR hoặc chuyển khoản <strong>{formatPrice(order.totalAmount)}</strong> tới STK <strong>0000000001</strong> (Vietcombank - TECHCRAFT) với cú pháp <strong>{order.orderCode || String(order.id).slice(0, 8).toUpperCase()}</strong>.
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -488,7 +527,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             </div>
 
             <div className="pt-3 border-t border-slate-200 flex items-baseline justify-between text-base">
-              <span className="font-bold text-slate-800">Tổng thanh toán COD:</span>
+              <span className="font-bold text-slate-800">Tổng thanh toán:</span>
               <span className="text-xl sm:text-2xl font-black text-blue-600">
                 {formatPrice(order.totalAmount)}
               </span>

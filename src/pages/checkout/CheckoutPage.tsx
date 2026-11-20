@@ -18,6 +18,9 @@ import {
   Check,
   Copy,
   Banknote,
+  QrCode,
+  RefreshCw,
+  AlertCircle,
   Sparkles,
   Ticket,
   Tag,
@@ -27,10 +30,11 @@ import { useAuthStore } from "@/stores/authStore"
 import { useCheckoutStore } from "@/stores/checkoutStore"
 import { useCartStore } from "@/stores/cartStore"
 import { orderService } from "@/services/api/orderService"
+import { paymentService } from "@/services/api/paymentService"
 import { voucherService } from "@/services/api/voucherService"
 import { formatPrice, CATEGORIES_META } from "@/pages/products/constants"
 import { getPcCaseThumbnail } from "@/pages/pc-cases/constants"
-import type { Order, CreateOrderPayload } from "@/types/order"
+import type { Order, CreateOrderPayload, PaymentMethod, PaymentInfo } from "@/types/order"
 import type { Voucher, ValidateVoucherResponse } from "@/types/voucher"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -56,7 +60,12 @@ export const CheckoutPage: React.FC = () => {
   const [phone, setPhone] = useState<string>(user?.phone || "")
   const [shippingAddress, setShippingAddress] = useState<string>(user?.address || "")
   const [note, setNote] = useState<string>("")
-  const [paymentMethod, setPaymentMethod] = useState<"COD">("COD")
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD")
+
+  // SePay Payment States
+  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null)
+  const [isCheckingPayment, setIsCheckingPayment] = useState<boolean>(false)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   // Voucher States
   const [voucherCodeInput, setVoucherCodeInput] = useState<string>("")
@@ -199,6 +208,69 @@ export const CheckoutPage: React.FC = () => {
     setTimeout(() => setCopiedOrderId(false), 2000)
   }
 
+  const handleCopyText = (text: string, fieldName: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedField(fieldName)
+    toast.success(`Đã sao chép ${fieldName}!`)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
+  // Tự động kiểm tra trạng thái thanh toán SePay mỗi 3 giây
+  useEffect(() => {
+    if (!createdOrder || createdOrder.paymentMethod !== "SEPAY" || createdOrder.paymentStatus === "PAID") {
+      return
+    }
+
+    // Tải thông tin thanh toán VietQR nếu chưa có
+    paymentService.getPaymentInfo(createdOrder.id)
+      .then((res) => {
+        const data = res?.data || (res as any)
+        if (data) setPaymentInfo(data)
+      })
+      .catch((err) => {
+        console.warn("Không thể tải chi tiết thanh toán:", err)
+      })
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await paymentService.getPaymentStatus(createdOrder.id)
+        const data = (res?.data || res) as any
+        if (data?.paymentStatus === "PAID") {
+          setCreatedOrder((prev) =>
+            prev ? { ...prev, paymentStatus: "PAID", status: "CONFIRMED" } : null
+          )
+          toast.success("Thanh toán thành công qua SePay! Đơn hàng của bạn đã được xác nhận tự động.")
+          clearInterval(interval)
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [createdOrder])
+
+  const handleCheckPaymentStatus = async () => {
+    if (!createdOrder) return
+    setIsCheckingPayment(true)
+    try {
+      const res = await paymentService.getPaymentStatus(createdOrder.id)
+      const data = (res?.data || res) as any
+      if (data?.paymentStatus === "PAID") {
+        setCreatedOrder((prev) =>
+          prev ? { ...prev, paymentStatus: "PAID", status: "CONFIRMED" } : null
+        )
+        toast.success("Thanh toán thành công qua SePay! Đơn hàng đã được xác nhận.")
+      } else {
+        toast.info("Hệ thống chưa ghi nhận thanh toán. Nếu bạn vừa chuyển tiền, vui lòng đợi 3-5 giây để SePay bắn webhook.")
+      }
+    } catch {
+      toast.error("Không thể kiểm tra trạng thái lúc này. Vui lòng thử lại sau ít phút!")
+    } finally {
+      setIsCheckingPayment(false)
+    }
+  }
+
   const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -319,12 +391,175 @@ export const CheckoutPage: React.FC = () => {
             </div>
           </div>
 
+          {/* SEPAY PAYMENT BANNER OR VIETQR PAYMENT CARD */}
+          {createdOrder.paymentMethod === "SEPAY" && (
+            <>
+              {createdOrder.paymentStatus === "PAID" ? (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 sm:p-8 text-center space-y-3">
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                    <CheckCircle2 className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-900">
+                    Đã nhận thanh toán qua SePay thành công!
+                  </h3>
+                  <p className="text-xs sm:text-sm text-emerald-700 max-w-md mx-auto">
+                    Hệ thống đã tự động ghi nhận khoản thanh toán {formatPrice(createdOrder.totalAmount)}. Đơn hàng đang được TechCraft chuẩn bị để đóng gói và gửi tới bạn.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-3xl border-2 border-emerald-500/80 p-6 sm:p-8 shadow-sm space-y-6 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Chờ quét mã VietQR
+                        </span>
+                        <span className="text-xs text-slate-400">Xác nhận tự động trong 3 giây</span>
+                      </div>
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                        Chuyển khoản thanh toán đơn hàng (SePay Sandbox)
+                      </h3>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isCheckingPayment}
+                      onClick={handleCheckPaymentStatus}
+                      className="gap-2 text-xs font-bold text-emerald-700 border-emerald-200 hover:bg-emerald-50 self-start sm:self-center"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isCheckingPayment ? "animate-spin" : ""}`} />
+                      <span>{isCheckingPayment ? "Đang kiểm tra..." : "Tôi đã chuyển tiền"}</span>
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    {/* Left: VietQR Image */}
+                    <div className="md:col-span-5 flex flex-col items-center justify-center p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                      <div className="relative bg-white p-3 rounded-xl shadow-xs border border-slate-200">
+                        <img
+                          src={
+                            paymentInfo?.qrCodeUrl ||
+                            createdOrder.paymentQrUrl ||
+                            `https://qr.sepay.vn/img?bank=Vietcombank&acc=0000000001&template=compact&amount=${createdOrder.totalAmount}&des=${createdOrder.orderCode || String(createdOrder.id).slice(0, 8).toUpperCase()}`
+                          }
+                          alt="Mã VietQR thanh toán SePay"
+                          className="w-56 h-56 sm:w-60 sm:h-60 object-contain rounded-lg"
+                        />
+                      </div>
+                      <p className="mt-3 text-[11px] text-slate-500 text-center font-medium">
+                        Mở app ngân hàng quét mã QR hoặc chuyển khoản thủ công
+                      </p>
+                    </div>
+
+                    {/* Right: Bank Details with Copy */}
+                    <div className="md:col-span-7 space-y-3 text-xs sm:text-sm">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <span className="text-slate-500 font-medium">Ngân hàng thụ hưởng:</span>
+                        <span className="font-bold text-slate-800">
+                          {paymentInfo?.bankName || "Vietcombank"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <div>
+                          <span className="text-slate-500 font-medium block">Số tài khoản:</span>
+                          <span className="font-mono font-bold text-slate-900 text-sm sm:text-base">
+                            {paymentInfo?.accountNumber || "0000000001"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(paymentInfo?.accountNumber || "0000000001", "Số tài khoản")}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 font-semibold text-xs transition"
+                        >
+                          {copiedField === "Số tài khoản" ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                          <span>Sao chép</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <span className="text-slate-500 font-medium">Chủ tài khoản:</span>
+                        <span className="font-bold text-slate-800 font-mono">
+                          {paymentInfo?.accountName || "TECHCRAFT"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/80">
+                        <div>
+                          <span className="text-slate-500 font-medium block">Số tiền thanh toán:</span>
+                          <span className="font-black text-emerald-600 text-base sm:text-lg">
+                            {formatPrice(createdOrder.totalAmount)}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(String(createdOrder.totalAmount), "Số tiền")}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-semibold text-xs transition"
+                        >
+                          {copiedField === "Số tiền" ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                          <span>Sao chép</span>
+                        </button>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-amber-900 font-bold block">Nội dung chuyển khoản (bắt buộc):</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCopyText(
+                                paymentInfo?.transferContent || createdOrder.orderCode || String(createdOrder.id).slice(0, 8).toUpperCase(),
+                                "Nội dung chuyển khoản"
+                              )
+                            }
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-800 hover:bg-amber-100 font-semibold text-xs transition"
+                          >
+                            {copiedField === "Nội dung chuyển khoản" ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                            <span>Sao chép</span>
+                          </button>
+                        </div>
+                        <p className="font-mono font-black text-blue-700 text-sm sm:text-base tracking-wider bg-white p-2 rounded-lg border border-amber-200 text-center select-all">
+                          {paymentInfo?.transferContent || createdOrder.orderCode || String(createdOrder.id).slice(0, 8).toUpperCase()}
+                        </p>
+                        <div className="flex items-start gap-1.5 text-[11px] text-amber-800 pt-1">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+                          <span>
+                            Vui lòng nhập <strong>chính xác</strong> nội dung chuyển khoản trên để hệ thống ghi nhận tự động.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {/* Order Details Summary */}
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
             <h2 className="text-base sm:text-lg font-bold text-slate-900 pb-3 border-b border-slate-100 flex items-center justify-between">
               <span>Thông tin giao hàng & thanh toán</span>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                Chờ xác nhận (PENDING)
+              <span
+                className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
+                  createdOrder.paymentStatus === "PAID"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-amber-50 text-amber-700 border-amber-200"
+                }`}
+              >
+                {createdOrder.paymentStatus === "PAID" ? "Đã thanh toán (CONFIRMED)" : "Chờ xác nhận (PENDING)"}
               </span>
             </h2>
 
@@ -339,8 +574,26 @@ export const CheckoutPage: React.FC = () => {
               <div className="space-y-1">
                 <span className="text-slate-400 font-medium">Phương thức thanh toán:</span>
                 <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                  <Banknote className="w-4 h-4 text-emerald-600" />
-                  <span>Thanh toán khi nhận hàng (COD)</span>
+                  {createdOrder.paymentMethod === "SEPAY" ? (
+                    <>
+                      <QrCode className="w-4 h-4 text-emerald-600" />
+                      <span>Chuyển khoản VietQR (SePay)</span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          createdOrder.paymentStatus === "PAID"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        {createdOrder.paymentStatus === "PAID" ? "Đã thanh toán" : "Chờ thanh toán"}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Banknote className="w-4 h-4 text-emerald-600" />
+                      <span>Thanh toán khi nhận hàng (COD)</span>
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -433,7 +686,7 @@ export const CheckoutPage: React.FC = () => {
 
                 {/* Final Total */}
                 <div className="pt-3 border-t border-slate-100 flex items-baseline justify-between text-base">
-                  <span className="font-bold text-slate-700">Tổng thanh toán COD:</span>
+                  <span className="font-bold text-slate-700">Tổng thanh toán:</span>
                   <span className="text-xl sm:text-2xl font-black text-blue-600">
                     {formatPrice(createdOrder.totalAmount)}
                   </span>
@@ -752,6 +1005,40 @@ export const CheckoutPage: React.FC = () => {
                         </div>
                       </div>
                       <Banknote className="w-5 h-5 text-blue-600 shrink-0" />
+                    </div>
+                  </label>
+
+                  {/* SEPAY VIETQR */}
+                  <label
+                    className={`block p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                      paymentMethod === "SEPAY"
+                        ? "border-emerald-600 bg-emerald-50/30"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="SEPAY"
+                          checked={paymentMethod === "SEPAY"}
+                          onChange={() => setPaymentMethod("SEPAY")}
+                          className="mt-1 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <div className="space-y-0.5">
+                          <div className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                            <span>Chuyển khoản VietQR tự động (SePay)</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                              Tự động 24/7
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            Quét mã QR bằng mọi ứng dụng ngân hàng (Vietcombank, MB, Techcombank,...). Hệ thống tự động xác nhận đơn ngay khi giao dịch thành công.
+                          </p>
+                        </div>
+                      </div>
+                      <QrCode className="w-5 h-5 text-emerald-600 shrink-0" />
                     </div>
                   </label>
                 </div>
