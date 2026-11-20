@@ -76,7 +76,7 @@ export const AdminSidebar: React.FC = () => {
               }
             >
               <Layers className="w-4 h-4 shrink-0" />
-              <span>Quản lý sản phẩm</span>
+              <span>Quản lý linh kiện</span>
             </NavLink>
 
             <NavLink

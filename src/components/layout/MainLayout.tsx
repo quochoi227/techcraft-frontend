@@ -46,7 +46,7 @@ export const MainLayout: React.FC = () => {
       </main>
       {!isChatPage && <Footer />}
       <FloatingAiButton />
-      <Toaster richColors position="top-right" closeButton />
+      <Toaster richColors position="top-center" closeButton />
     </div>
   )
 }
