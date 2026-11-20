@@ -1,0 +1,146 @@
+import { createBrowserRouter, Navigate } from "react-router-dom"
+import { MainLayout } from "@/components/layout/MainLayout"
+import { AdminLayout } from "@/components/layout/AdminLayout"
+import { RegisterPage } from "@/pages/auth/RegisterPage"
+import { LoginPage } from "@/pages/auth/LoginPage"
+import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage"
+import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage"
+import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage"
+import { HomePage } from "@/pages/home/HomePage"
+import { NotFoundPage } from "@/pages/not-found/NotFoundPage"
+import { ProductListPage as UserProductListPage } from "@/pages/products/ProductListPage"
+import { ProductDetailPage } from "@/pages/products/ProductDetailPage"
+import { CartPage } from "@/pages/cart/CartPage"
+import { CheckoutPage } from "@/pages/checkout/CheckoutPage"
+import { OrderHistoryPage } from "@/pages/orders/OrderHistoryPage"
+import { ProfilePage } from "@/pages/profile/ProfilePage"
+import { PcCaseListPage as UserPcCaseListPage } from "@/pages/pc-cases/PcCaseListPage"
+import { PcCaseDetailPage } from "@/pages/pc-cases/PcCaseDetailPage"
+import { AiConsultantPage } from "@/pages/chat/AiConsultantPage"
+import { ProductListPage } from "@/pages/admin/products/ProductListPage"
+import { DashboardPage } from "@/pages/admin/dashboard/DashboardPage"
+import { OrderListPage } from "@/pages/admin/orders/OrderListPage"
+import { VoucherListPage } from "@/pages/admin/vouchers/VoucherListPage"
+import { PcCaseListPage } from "@/pages/admin/pc-cases/PcCaseListPage"
+import { RagAiPage } from "@/pages/admin/rag-ai/RagAiPage"
+import { UserListPage } from "@/pages/admin/users/UserListPage"
+
+export const router = createBrowserRouter([
+  // Phân hệ Khách hàng (Client Portal)
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "verify-email",
+        element: <VerifyEmailPage />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPasswordPage />,
+      },
+      {
+        path: "products",
+        element: <UserProductListPage />,
+      },
+      {
+        path: "products/:id",
+        element: <ProductDetailPage />,
+      },
+      {
+        path: "pc-cases",
+        element: <UserPcCaseListPage />,
+      },
+      {
+        path: "pc-cases/:id",
+        element: <PcCaseDetailPage />,
+      },
+      {
+        path: "ai-consultant",
+        element: <AiConsultantPage />,
+      },
+      {
+        path: "chat",
+        element: <Navigate to="/ai-consultant" replace />,
+      },
+      {
+        path: "cart",
+        element: <CartPage />,
+      },
+      {
+        path: "checkout",
+        element: <CheckoutPage />,
+      },
+      {
+        path: "orders",
+        element: <OrderHistoryPage />,
+      },
+      {
+        path: "profile",
+        element: <ProfilePage />,
+      },
+    ],
+  },
+
+  // Phân hệ Quản trị (Admin Portal)
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/admin/dashboard" replace />,
+      },
+      {
+        path: "products",
+        element: <ProductListPage />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+      {
+        path: "orders",
+        element: <OrderListPage />,
+      },
+      {
+        path: "vouchers",
+        element: <VoucherListPage />,
+      },
+      {
+        path: "pc-cases",
+        element: <PcCaseListPage />,
+      },
+      {
+        path: "rag-ai",
+        element: <RagAiPage />,
+      },
+      {
+        path: "users",
+        element: <UserListPage />,
+      },
+    ],
+  },
+
+  // 404 Route
+  {
+    path: "*",
+    element: <NotFoundPage />,
+  },
+])

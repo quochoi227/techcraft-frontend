@@ -1,0 +1,11 @@
+import React from "react"
+
+export const AdminFooter: React.FC = () => {
+  return (
+    <footer className="bg-white border-t border-slate-200 py-4 px-8 text-center text-xs text-slate-400 mt-auto">
+      <p>
+        © 2026 TechCraft PC Inc. Hệ thống quản trị nội bộ theo tiêu chuẩn Notion Design System.
+      </p>
+    </footer>
+  )
+}
