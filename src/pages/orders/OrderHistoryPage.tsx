@@ -500,8 +500,24 @@ export const OrderHistoryPage: React.FC = () => {
                         <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                         <span className="truncate max-w-md">{order.shippingAddress}</span>
                       </div>
-                      <div className="text-slate-400">
-                        Thanh toán khi nhận hàng (COD) • Miễn phí vận chuyển toàn quốc
+                      <div className="text-slate-400 flex items-center gap-1.5 flex-wrap">
+                        {order.paymentMethod === "SEPAY" ? (
+                          <>
+                            <span>Chuyển khoản VietQR (SePay)</span>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                order.paymentStatus === "PAID"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chờ thanh toán"}
+                            </span>
+                          </>
+                        ) : (
+                          <span>Thanh toán khi nhận hàng (COD)</span>
+                        )}
+                        <span>• Miễn phí vận chuyển toàn quốc</span>
                       </div>
                     </div>
 
