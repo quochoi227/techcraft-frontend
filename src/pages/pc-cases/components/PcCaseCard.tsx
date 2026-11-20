@@ -31,6 +31,145 @@ interface PcCaseCardProps {
 const PREBUILT_PC_IMAGE =
   "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=600&q=80"
 
+/**
+ * Trích xuất URL hình ảnh từ đối tượng sản phẩm linh kiện
+ */
+const getProductImageUrl = (product?: any): string => {
+  if (!product) return ""
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    const primary = product.images.find(
+      (img: any) => img.primary || img.isPrimary || img.is_primary
+    )
+    return (
+      primary?.imageUrl ||
+      primary?.image_url ||
+      product.images[0]?.imageUrl ||
+      product.images[0]?.image_url ||
+      ""
+    )
+  }
+  return product.imageUrl || product.image_url || ""
+}
+
+/**
+ * Gallery ảnh đại diện PC Case:
+ * - Vỏ case nhỏ lại, nằm ở giữa phía bên trái
+ * - CPU hiển thị ở trên, bên phải
+ * - GPU hiển thị ở dưới, bên phải
+ */
+interface PcCaseThumbnailGalleryProps {
+  pcCase: PcCase
+  caseImage: string
+  cpuImage?: string
+  gpuImage?: string
+  caseName?: string
+  cpuName?: string
+  gpuName?: string
+  onQuickView: (pcCase: PcCase) => void
+}
+
+const PcCaseThumbnailGallery: React.FC<PcCaseThumbnailGalleryProps> = ({
+  pcCase,
+  caseImage,
+  cpuImage,
+  gpuImage,
+  caseName,
+  cpuName,
+  gpuName,
+  onQuickView,
+}) => {
+  const [caseImgErr, setCaseImgErr] = useState(false)
+  const [cpuImgErr, setCpuImgErr] = useState(false)
+  const [gpuImgErr, setGpuImgErr] = useState(false)
+
+  const effectiveCaseImg = caseImgErr || !caseImage ? PREBUILT_PC_IMAGE : caseImage
+
+  return (
+    <div className="relative flex items-center gap-2 w-full h-full">
+      {/* Vỏ Case: Thu nhỏ lại, nằm ở giữa phía bên trái */}
+      <div className="relative w-[58%] h-full rounded-xl bg-white/80 border border-slate-100/90 flex items-center justify-center p-2 overflow-hidden shadow-2xs group/case">
+        <img
+          src={effectiveCaseImg}
+          alt={caseName || pcCase.name}
+          className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+          onError={() => setCaseImgErr(true)}
+          loading="lazy"
+        />
+        <span className="absolute bottom-1.5 left-2 text-[8.5px] font-bold tracking-wider uppercase text-slate-400 bg-slate-50/90 border border-slate-200/50 px-1 py-0.2 rounded leading-tight pointer-events-none">
+          Case
+        </span>
+      </div>
+
+      {/* Cột bên phải: CPU ở trên, GPU ở dưới */}
+      <div className="flex flex-col gap-2 w-[42%] h-full justify-between">
+        {/* CPU: Nằm ở trên, bên phải */}
+        <div
+          className="relative flex-1 w-full rounded-xl bg-white/80 border border-slate-100/90 flex items-center justify-center p-1.5 overflow-hidden shadow-2xs group/cpu"
+          title={cpuName ? `CPU: ${cpuName}` : "CPU"}
+        >
+          {cpuImage && !cpuImgErr ? (
+            <img
+              src={cpuImage}
+              alt={cpuName || "CPU"}
+              className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              onError={() => setCpuImgErr(true)}
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-slate-300">
+              <Cpu className="w-5 h-5 text-blue-400/80 stroke-[1.75]" />
+              <span className="text-[9px] text-slate-400 font-medium mt-0.5">CPU</span>
+            </div>
+          )}
+          <span className="absolute bottom-1.5 left-1.5 text-[8.5px] font-bold text-blue-600 bg-blue-50/90 border border-blue-200/60 px-1 py-0.2 rounded leading-tight pointer-events-none">
+            CPU
+          </span>
+        </div>
+
+        {/* GPU: Nằm ở dưới, bên phải */}
+        <div
+          className="relative flex-1 w-full rounded-xl bg-white/80 border border-slate-100/90 flex items-center justify-center p-1.5 overflow-hidden shadow-2xs group/gpu"
+          title={gpuName ? `VGA/GPU: ${gpuName}` : "GPU"}
+        >
+          {gpuImage && !gpuImgErr ? (
+            <img
+              src={gpuImage}
+              alt={gpuName || "GPU"}
+              className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              onError={() => setGpuImgErr(true)}
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-slate-300">
+              <Sparkles className="w-5 h-5 text-purple-400/80 stroke-[1.75]" />
+              <span className="text-[9px] text-slate-400 font-medium mt-0.5">GPU</span>
+            </div>
+          )}
+          <span className="absolute bottom-1.5 left-1.5 text-[8.5px] font-bold text-purple-600 bg-purple-50/90 border border-purple-200/60 px-1 py-0.2 rounded leading-tight pointer-events-none">
+            GPU
+          </span>
+        </div>
+      </div>
+
+      {/* Hover Quick Action Overlay */}
+      <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[1.5px] opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center z-20 pointer-events-none group-hover:pointer-events-auto">
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={(e) => {
+            e.stopPropagation()
+            onQuickView(pcCase)
+          }}
+          className="h-8 px-3.5 rounded-full bg-white/95 text-slate-800 hover:bg-white text-xs font-bold shadow-md gap-1"
+        >
+          <Eye className="w-3.5 h-3.5" /> Xem linh kiện
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export const PcCaseCard: React.FC<PcCaseCardProps> = ({
   pcCase,
   viewMode = "grid",
@@ -54,11 +193,10 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
   const storage = getComponentByCategory(pcCase, "STORAGE")
   const caseProduct = getComponentByCategory(pcCase, "CASE")
 
-  // Lấy ảnh vỏ case hoặc ảnh mặc định
-  const displayImage =
-    caseProduct?.images?.find((img) => img.primary || img.isPrimary)?.imageUrl ||
-    caseProduct?.images?.[0]?.imageUrl ||
-    PREBUILT_PC_IMAGE
+  // Lấy ảnh các linh kiện chính: Vỏ case, CPU, GPU
+  const caseImage = getProductImageUrl(caseProduct) || PREBUILT_PC_IMAGE
+  const cpuImage = getProductImageUrl(cpu)
+  const gpuImage = getProductImageUrl(gpu)
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -92,27 +230,18 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
         onClick={() => navigate(`/pc-cases/${pcCase.id}`)}
         className="group relative flex flex-col sm:flex-row items-center gap-5 bg-white rounded-2xl border border-slate-200/90 p-5 transition-all duration-300 hover:shadow-xl hover:border-purple-300 cursor-pointer"
       >
-        {/* Thumbnail Image */}
-        <div className="relative w-full sm:w-52 h-52 shrink-0 overflow-hidden rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-3">
-          <img
-            src={displayImage}
-            alt={pcCase.name}
-            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-108"
-            onError={(e) => {
-              ;(e.target as HTMLImageElement).src = PREBUILT_PC_IMAGE
-            }}
+        {/* Thumbnail Image Gallery */}
+        <div className="relative w-full sm:w-56 h-52 shrink-0 overflow-hidden rounded-xl bg-slate-50/80 border border-slate-100 p-2.5">
+          <PcCaseThumbnailGallery
+            pcCase={pcCase}
+            caseImage={caseImage}
+            cpuImage={cpuImage}
+            gpuImage={gpuImage}
+            caseName={caseProduct?.name}
+            cpuName={cpu?.name}
+            gpuName={gpu?.name}
+            onQuickView={onQuickView}
           />
-          {/* Quick View Button hover */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onQuickView(pcCase)
-            }}
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white gap-1.5 text-xs font-semibold"
-          >
-            <Eye className="w-4 h-4" /> Xem linh kiện
-          </button>
         </div>
 
         {/* Content */}
@@ -264,7 +393,7 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
       className="group relative flex flex-col bg-white rounded-2xl border border-slate-200/90 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-purple-300 hover:-translate-y-1 cursor-pointer"
     >
       {/* Floating Badges */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between gap-1 pointer-events-none">
+      <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between gap-1 pointer-events-none">
         <span
           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-bold border shadow-xs backdrop-blur-xs ${
             useCaseMeta.badgeClass
@@ -287,31 +416,17 @@ export const PcCaseCard: React.FC<PcCaseCardProps> = ({
       </div>
 
       {/* Image Box */}
-      <div className="relative aspect-4/3 w-full overflow-hidden bg-slate-50 border-b border-slate-100 p-5 flex items-center justify-center">
-        <img
-          src={displayImage}
-          alt={pcCase.name}
-          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-108"
-          onError={(e) => {
-            ;(e.target as HTMLImageElement).src = PREBUILT_PC_IMAGE
-          }}
+      <div className="relative aspect-4/3 w-full overflow-hidden bg-slate-50/80 border-b border-slate-100 p-2.5 flex items-center justify-center">
+        <PcCaseThumbnailGallery
+          pcCase={pcCase}
+          caseImage={caseImage}
+          cpuImage={cpuImage}
+          gpuImage={gpuImage}
+          caseName={caseProduct?.name}
+          cpuName={cpu?.name}
+          gpuName={gpu?.name}
+          onQuickView={onQuickView}
         />
-
-        {/* Hover Quick Action */}
-        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            onClick={(e) => {
-              e.stopPropagation()
-              onQuickView(pcCase)
-            }}
-            className="h-8 px-3.5 rounded-full bg-white/95 text-slate-800 hover:bg-white text-xs font-bold shadow-md gap-1"
-          >
-            <Eye className="w-3.5 h-3.5" /> Xem 8 linh kiện
-          </Button>
-        </div>
       </div>
 
       {/* Info Body */}
