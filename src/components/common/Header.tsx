@@ -34,6 +34,7 @@ export const Header: React.FC = () => {
 
   const { user, isAuthenticated, clearAuth } = useAuthStore()
   const cartCount = useCartStore((state) => state.getTotalCount())
+  const clearCart = useCartStore((state) => state.clearCart)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +50,7 @@ export const Header: React.FC = () => {
       // Bỏ qua lỗi mạng khi logout
     } finally {
       clearAuth()
+      clearCart()
       toast.success("Đã đăng xuất khỏi tài khoản thành công")
       navigate("/")
     }
