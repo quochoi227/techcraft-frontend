@@ -538,7 +538,7 @@ export const AiConsultantPage: React.FC = () => {
 
       {/* Mobile Sidebar Modal/Drawer */}
       {showMobileSidebar && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex justify-end lg:hidden">
+        <div className="fixed inset-0 z-50 !mt-0 bg-slate-900/40 backdrop-blur-xs flex justify-end lg:hidden">
           <div className="w-80 max-w-full h-full bg-white shadow-2xl p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="font-bold text-sm text-slate-900">

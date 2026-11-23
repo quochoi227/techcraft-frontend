@@ -702,7 +702,7 @@ export const PcCaseListPage: React.FC = () => {
       {/* 3. Mobile Filter Drawer                                 */}
       {/* ------------------------------------------------------- */}
       {isMobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
+        <div className="fixed inset-0 z-50 !mt-0 flex justify-end bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
           <div
             className="w-full max-w-xs sm:max-w-sm h-full bg-white shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-300 flex flex-col"
             onClick={(e) => e.stopPropagation()}

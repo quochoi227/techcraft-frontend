@@ -66,7 +66,7 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
   const configuredSlotsCount = resolvedItems.filter((i) => Boolean(i.product)).length
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 !mt-0 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden">
         {/* Header Modal */}
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
