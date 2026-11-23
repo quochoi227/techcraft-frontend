@@ -37,7 +37,7 @@ export const VoucherDeleteModal: React.FC<VoucherDeleteModalProps> = ({
   const hasUsage = (voucher.usedCount || 0) > 0
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 !mt-0 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95"
         onClick={(e) => e.stopPropagation()}
