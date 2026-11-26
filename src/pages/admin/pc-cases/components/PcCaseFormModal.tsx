@@ -388,13 +388,14 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
             <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <Box className="w-5 h-5 text-blue-600" />
               {isDuplicate
-                ? 'Nhân bản Cấu hình PC'
+                ? "Nhân bản Cấu hình PC"
                 : initialData
-                ? 'Chỉnh sửa Cấu hình PC Case'
-                : 'Tạo Cấu hình PC Case mới'}
+                  ? "Chỉnh sửa Cấu hình PC Case"
+                  : "Tạo Cấu hình PC Case mới"}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Chọn 8 linh kiện thật từ Database và thẩm định 8 ràng buộc tương thích phần cứng
+              Chọn 8 linh kiện thật từ Database và thẩm định 8 ràng buộc tương
+              thích phần cứng
             </p>
           </div>
           <button
@@ -406,7 +407,10 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
         </div>
 
         {/* Body Modal (Cuộn theo chiều dọc) */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-6"
+        >
           {/* Thông tin chung */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50/60 rounded-xl border border-slate-200/80">
             {/* Tên PC Case */}
@@ -443,7 +447,9 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
 
             {/* Mô tả cấu hình */}
             <div className="md:col-span-2 space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-700">Mô tả cấu hình</Label>
+              <Label className="text-xs font-semibold text-slate-700">
+                Mô tả cấu hình
+              </Label>
               <Input
                 placeholder="VD: Cấu hình PC chơi game mượt mà, đồ họa và học tập..."
                 value={description}
@@ -454,7 +460,9 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
 
             {/* Trạng thái hiển thị */}
             <div className="flex flex-col justify-end space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-700">Trạng thái phát hành</Label>
+              <Label className="text-xs font-semibold text-slate-700">
+                Trạng thái phát hành
+              </Label>
               <label className="flex items-center gap-2 h-10 px-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
                 <input
                   type="checkbox"
@@ -463,7 +471,7 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                   className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
                 />
                 <span className="text-sm font-medium text-slate-700">
-                  {isActive ? 'Đang hoạt động (Hiển thị)' : 'Tạm ẩn cấu hình'}
+                  {isActive ? "Đang hoạt động (Hiển thị)" : "Tạm ẩn cấu hình"}
                 </span>
               </label>
             </div>
@@ -474,13 +482,16 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <span>8 Slot Linh kiện phần cứng (Dữ liệu thật trong Database)</span>
+                  <span>
+                    8 Slot Linh kiện phần cứng (Dữ liệu thật trong Database)
+                  </span>
                   <span className="text-xs normal-case px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-semibold">
                     Đã chọn {filledSlotsCount}/8 slot
                   </span>
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Lựa chọn linh kiện thực tế đang có trong kho dữ liệu sản phẩm của TechCraft
+                  Lựa chọn linh kiện thực tế đang có trong kho dữ liệu sản phẩm
+                  của TechCraft
                 </p>
               </div>
 
@@ -506,7 +517,10 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
             {isLoadingProducts && (
               <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 text-blue-700 text-xs flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                <span>Đang kết nối cơ sở dữ liệu và tải danh sách linh kiện mới nhất...</span>
+                <span>
+                  Đang kết nối cơ sở dữ liệu và tải danh sách linh kiện mới
+                  nhất...
+                </span>
               </div>
             )}
 
@@ -515,8 +529,8 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
               <div
                 className={`p-4 rounded-xl border text-sm transition-all ${
                   validationResult.compatible
-                    ? 'bg-emerald-50/80 border-emerald-200 text-emerald-800'
-                    : 'bg-rose-50/80 border-rose-200 text-rose-800'
+                    ? "bg-emerald-50/80 border-emerald-200 text-emerald-800"
+                    : "bg-rose-50/80 border-rose-200 text-rose-800"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -528,19 +542,19 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                   <div className="space-y-1">
                     <p className="font-semibold text-sm">
                       {validationResult.compatible
-                        ? 'Cấu hình hoàn toàn tương thích và đạt tiêu chuẩn an toàn!'
+                        ? "Cấu hình hoàn toàn tương thích và đạt tiêu chuẩn an toàn!"
                         : `Phát hiện ${validationResult.violations.length} vấn đề phần cứng không tương thích:`}
                     </p>
                     {validationResult.compatible ? (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-emerald-700 pt-1">
                         <div>✓ Socket CPU & Mainboard</div>
-                        <div>✓ Chuẩn RAM & Khe cắm</div>
-                        <div>✓ Form Factor Main & Case</div>
-                        <div>✓ Chiều dài GPU & Vỏ Case</div>
-                        <div>✓ Chiều cao tản & Vỏ Case</div>
-                        <div>✓ Tản nhiệt hỗ trợ Socket</div>
-                        <div>✓ Công suất Nguồn & Tổng TDP</div>
-                        <div>✓ Tồn kho linh kiện hợp lệ</div>
+                        <div>✓ Chuẩn bộ nhớ RAM & CPU</div>
+                        <div>✓ Khe cắm RAM trên Mainboard</div>
+                        <div>✓ Form factor Mainboard & Vỏ Case</div>
+                        <div>✓ Kích thước Card đồ họa</div>
+                        <div>✓ Chiều cao tản nhiệt CPU</div>
+                        <div>✓ Socket ngàm đỡ Tản nhiệt CPU</div>
+                        <div>✓ Công suất nguồn</div>
                       </div>
                     ) : (
                       <ul className="list-disc list-inside space-y-1 text-xs text-rose-700 pt-1">
@@ -557,17 +571,18 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
             {/* Danh sách 8 slot */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {PC_COMPONENT_SLOTS.map((slot) => {
-                const IconComponent = SLOT_ICONS[slot.category]
-                const selected = selectedComponents[slot.category]
-                const categoryProducts = productsByCategory[slot.category] || []
+                const IconComponent = SLOT_ICONS[slot.category];
+                const selected = selectedComponents[slot.category];
+                const categoryProducts =
+                  productsByCategory[slot.category] || [];
 
                 return (
                   <div
                     key={slot.category}
                     className={`p-3.5 rounded-xl border transition-all ${
                       selected
-                        ? 'bg-white border-slate-300 shadow-sm'
-                        : 'bg-slate-50/50 border-dashed border-slate-300'
+                        ? "bg-white border-slate-300 shadow-sm"
+                        : "bg-slate-50/50 border-dashed border-slate-300"
                     }`}
                   >
                     {/* Header Slot */}
@@ -576,8 +591,8 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                         <div
                           className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                             selected
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-slate-200 text-slate-500'
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-slate-200 text-slate-500"
                           }`}
                         >
                           <IconComponent className="w-4 h-4" />
@@ -587,7 +602,8 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                             {slot.label}
                           </span>
                           <span className="text-[10px] text-slate-400 block">
-                            {slot.description} ({categoryProducts.length} sản phẩm trong kho)
+                            {slot.description} ({categoryProducts.length} sản
+                            phẩm trong kho)
                           </span>
                         </div>
                       </div>
@@ -595,7 +611,9 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                       {selected && (
                         <button
                           type="button"
-                          onClick={() => handleSelectComponent(slot.category, null)}
+                          onClick={() =>
+                            handleSelectComponent(slot.category, null)
+                          }
                           className="text-[11px] text-rose-500 hover:text-rose-700 hover:underline"
                         >
                           Gỡ bỏ
@@ -606,18 +624,24 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                     {/* Bộ chọn sản phẩm thật từ Database */}
                     <div className="space-y-2">
                       <select
-                        value={selected?.id || ''}
+                        value={selected?.id || ""}
                         onChange={(e) => {
-                          const prodId = e.target.value
-                          const found = categoryProducts.find((p) => p.id === prodId) || null
-                          handleSelectComponent(slot.category, found)
+                          const prodId = e.target.value;
+                          const found =
+                            categoryProducts.find((p) => p.id === prodId) ||
+                            null;
+                          handleSelectComponent(slot.category, found);
                         }}
                         className="w-full h-9 px-2.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="">-- Chưa chọn {slot.category} --</option>
+                        <option value="">
+                          -- Chưa chọn {slot.category} --
+                        </option>
                         {categoryProducts.map((prod) => (
                           <option key={prod.id} value={prod.id}>
-                            {prod.name} ({new Intl.NumberFormat('vi-VN').format(prod.price)} đ) - Kho: {prod.stockQuantity}
+                            {prod.name} (
+                            {new Intl.NumberFormat("vi-VN").format(prod.price)}{" "}
+                            đ) - Kho: {prod.stockQuantity}
                           </option>
                         ))}
                       </select>
@@ -630,17 +654,22 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                               {selected.name}
                             </span>
                             <span className="font-semibold text-blue-600 text-xs">
-                              {new Intl.NumberFormat('vi-VN').format(selected.price)} đ
+                              {new Intl.NumberFormat("vi-VN").format(
+                                selected.price,
+                              )}{" "}
+                              đ
                             </span>
                           </div>
                           <span
                             className={`shrink-0 text-[10px] px-2 py-0.5 rounded font-medium ${
                               selected.stockQuantity > 0
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-rose-100 text-rose-700'
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-rose-100 text-rose-700"
                             }`}
                           >
-                            {selected.stockQuantity > 0 ? `Còn ${selected.stockQuantity}` : 'Hết hàng'}
+                            {selected.stockQuantity > 0
+                              ? `Còn ${selected.stockQuantity}`
+                              : "Hết hàng"}
                           </span>
                         </div>
                       ) : (
@@ -655,7 +684,7 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                       )}
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -665,19 +694,28 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
         <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div>
-              <span className="text-xs text-slate-500 block">Tổng giá niêm yết (8 slot thực tế):</span>
+              <span className="text-xs text-slate-500 block">
+                Tổng giá niêm yết (8 slot thực tế):
+              </span>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-xl font-bold text-slate-900 tracking-tight">
-                  {new Intl.NumberFormat('vi-VN').format(calculatedTotalPrice)} đ
+                  {new Intl.NumberFormat("vi-VN").format(calculatedTotalPrice)}{" "}
+                  đ
                 </span>
-                <span className="text-[11px] text-slate-400">Đã gồm VAT 10%</span>
+                <span className="text-[11px] text-slate-400">
+                  Đã gồm VAT 10%
+                </span>
               </div>
             </div>
 
             <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
             <div className="text-xs text-slate-500 hidden sm:block">
-              Trạng thái: <span className="font-semibold text-slate-800">{filledSlotsCount}/8</span> slot
+              Trạng thái:{" "}
+              <span className="font-semibold text-slate-800">
+                {filledSlotsCount}/8
+              </span>{" "}
+              slot
             </div>
           </div>
 
@@ -703,16 +741,16 @@ export const PcCaseFormModal: React.FC<PcCaseFormModalProps> = ({
                   Đang lưu...
                 </>
               ) : isDuplicate ? (
-                'Nhân bản Cấu hình'
+                "Nhân bản Cấu hình"
               ) : initialData ? (
-                'Cập nhật Cấu hình'
+                "Cập nhật Cấu hình"
               ) : (
-                'Lưu cấu hình PC mới'
+                "Lưu cấu hình PC mới"
               )}
             </Button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
