@@ -86,18 +86,23 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                 </span>
                 <span
                   className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                    pcCase.isActive ?? pcCase.active
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-200 text-slate-600'
+                    (pcCase.isActive ?? pcCase.active)
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-200 text-slate-600"
                   }`}
                 >
-                  {pcCase.isActive ?? pcCase.active ? 'Đang phát hành' : 'Tạm ẩn'}
+                  {(pcCase.isActive ?? pcCase.active)
+                    ? "Đang phát hành"
+                    : "Tạm ẩn"}
                 </span>
-                {typeof pcCase.averageRating === 'number' && pcCase.averageRating > 0 ? (
+                {typeof pcCase.averageRating === "number" &&
+                pcCase.averageRating > 0 ? (
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                     <span>
-                      {pcCase.averageRating} ({pcCase.totalReviews || pcCase.reviews?.length || 0} đánh giá)
+                      {pcCase.averageRating} (
+                      {pcCase.totalReviews || pcCase.reviews?.length || 0} đánh
+                      giá)
                     </span>
                   </span>
                 ) : (
@@ -111,8 +116,8 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                 <span>Mã định danh: {pcCase.id}</span>
                 {pcCase.createdAt && (
                   <span className="flex items-center gap-1">
-                    • <Calendar className="w-3 h-3" /> Ngày tạo:{' '}
-                    {new Date(pcCase.createdAt).toLocaleDateString('vi-VN')}
+                    • <Calendar className="w-3 h-3" /> Ngày tạo:{" "}
+                    {new Date(pcCase.createdAt).toLocaleDateString("vi-VN")}
                   </span>
                 )}
               </p>
@@ -135,7 +140,8 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
               Mô tả & Định vị cấu hình
             </span>
             <p className="text-sm text-slate-700 leading-relaxed">
-              {pcCase.description || 'Chưa có thông tin mô tả chi tiết cho cấu hình này.'}
+              {pcCase.description ||
+                "Chưa có thông tin mô tả chi tiết cho cấu hình này."}
             </p>
           </div>
 
@@ -162,9 +168,12 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {resolvedItems.map(({ slot, product }) => {
-                    const IconComponent = SLOT_ICONS[slot.category]
+                    const IconComponent = SLOT_ICONS[slot.category];
                     return (
-                      <tr key={slot.category} className="hover:bg-slate-50/60 transition-colors">
+                      <tr
+                        key={slot.category}
+                        className="hover:bg-slate-50/60 transition-colors"
+                      >
                         <td className="py-3 px-4">
                           <div
                             className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs"
@@ -180,7 +189,10 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                                 {product.name}
                               </div>
                               <div className="text-xs text-slate-400 mt-0.5">
-                                Danh mục: <span className="font-medium text-slate-600">{slot.label}</span>
+                                Danh mục:{" "}
+                                <span className="font-medium text-slate-600">
+                                  {slot.label}
+                                </span>
                               </div>
                             </>
                           ) : (
@@ -191,30 +203,30 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                         </td>
                         <td className="py-3 px-4 text-right font-semibold text-slate-800">
                           {product
-                            ? `${new Intl.NumberFormat('vi-VN').format(product.price)} đ`
-                            : '—'}
+                            ? `${new Intl.NumberFormat("vi-VN").format(product.price)} đ`
+                            : "—"}
                         </td>
                         <td className="py-3 px-4 text-center">
                           {product ? (
                             <span
                               className={`inline-block px-2 py-0.5 rounded text-[11px] font-medium ${
                                 product.stockQuantity > 5
-                                  ? 'bg-emerald-50 text-emerald-700'
+                                  ? "bg-emerald-50 text-emerald-700"
                                   : product.stockQuantity > 0
-                                  ? 'bg-amber-50 text-amber-700'
-                                  : 'bg-rose-50 text-rose-700'
+                                    ? "bg-amber-50 text-amber-700"
+                                    : "bg-rose-50 text-rose-700"
                               }`}
                             >
                               {product.stockQuantity > 0
                                 ? `Còn ${product.stockQuantity}`
-                                : 'Hết hàng'}
+                                : "Hết hàng"}
                             </span>
                           ) : (
                             <span className="text-slate-400 text-xs">—</span>
                           )}
                         </td>
                       </tr>
-                    )
+                    );
                   })}
                 </tbody>
               </table>
@@ -228,40 +240,41 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
               <span>Thẩm định 8 Ràng buộc tương thích phần cứng</span>
             </div>
             <p className="text-xs text-emerald-700">
-              Cấu hình được kiểm soát theo các quy tắc tương thích phần cứng nội bộ của TechCraft và sẵn sàng cấp dữ liệu phản hồi cho Chatbot AI.
+              Cấu hình được kiểm soát theo các quy tắc tương thích phần cứng nội
+              bộ của TechCraft và sẵn sàng cấp dữ liệu phản hồi cho Chatbot AI.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-xs pt-1">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Socket CPU & Bo mạch</span>
+                <span>Socket CPU & Mainboard</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Chuẩn RAM & Tốc độ</span>
+                <span>Chuẩn bộ nhớ RAM & CPU</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Form factor Main & Case</span>
+                <span>Khe cắm RAM trên Mainboard</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Kích thước Card VGA</span>
+                <span>Form factor Mainboard & Vỏ Case</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Chiều cao Tản nhiệt CPU</span>
+                <span>Kích thước Card đồ họa</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Socket ngàm Tản nhiệt</span>
+                <span>Chiều cao tản nhiệt CPU</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Công suất an toàn Nguồn</span>
+                <span>Socket ngàm đỡ Tản nhiệt CPU</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Đủ tồn kho xuất xưởng</span>
+                <span>Công suất nguồn</span>
               </div>
             </div>
           </div>
@@ -271,14 +284,18 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-blue-600" />
-                <span>Đánh giá từ khách hàng ({pcCase.reviews?.length || pcCase.totalReviews || 0})</span>
+                <span>
+                  Đánh giá từ khách hàng (
+                  {pcCase.reviews?.length || pcCase.totalReviews || 0})
+                </span>
               </h3>
-              {typeof pcCase.averageRating === 'number' && pcCase.averageRating > 0 && (
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span>Điểm trung bình: {pcCase.averageRating} / 5.0</span>
-                </div>
-              )}
+              {typeof pcCase.averageRating === "number" &&
+                pcCase.averageRating > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>Điểm trung bình: {pcCase.averageRating} / 5.0</span>
+                  </div>
+                )}
             </div>
 
             {pcCase.reviews && pcCase.reviews.length > 0 ? (
@@ -288,7 +305,7 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-slate-800 text-xs">
-                          {rev.userFullName || rev.userEmail || 'Khách hàng'}
+                          {rev.userFullName || rev.userEmail || "Khách hàng"}
                         </span>
                         <div className="flex items-center">
                           {Array.from({ length: 5 }).map((_, i) => (
@@ -296,8 +313,8 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                               key={i}
                               className={`w-3 h-3 ${
                                 i < rev.rating
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'text-slate-200'
+                                  ? "fill-amber-400 text-amber-400"
+                                  : "text-slate-200"
                               }`}
                             />
                           ))}
@@ -305,7 +322,7 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
                       </div>
                       {rev.createdAt && (
                         <span className="text-[11px] text-slate-400">
-                          {new Date(rev.createdAt).toLocaleDateString('vi-VN')}
+                          {new Date(rev.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                       )}
                     </div>
@@ -328,10 +345,13 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
         {/* Footer Modal: Tổng tiền & Nút sửa */}
         <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-500 block">Tổng giá niêm yết trọn bộ:</span>
+            <span className="text-xs text-slate-500 block">
+              Tổng giá niêm yết trọn bộ:
+            </span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-bold text-slate-900 tracking-tight">
-                {new Intl.NumberFormat('vi-VN').format(pcCase.totalPrice || 0)} đ
+                {new Intl.NumberFormat("vi-VN").format(pcCase.totalPrice || 0)}{" "}
+                đ
               </span>
               <span className="text-xs text-slate-400">Đã gồm VAT 10%</span>
             </div>
@@ -344,8 +364,8 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
             {onEdit && (
               <Button
                 onClick={() => {
-                  onClose()
-                  onEdit(pcCase)
+                  onClose();
+                  onEdit(pcCase);
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
               >
@@ -357,5 +377,5 @@ export const PcCaseDetailModal: React.FC<PcCaseDetailModalProps> = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
