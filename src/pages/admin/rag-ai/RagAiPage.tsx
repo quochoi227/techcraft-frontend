@@ -4,7 +4,6 @@ import {
   Plus,
   Search,
   RotateCw,
-  Sparkles,
   Layers,
   HardDrive,
   FileText,
@@ -27,7 +26,6 @@ import { MOCK_RAG_DOCUMENTS } from "./mockData"
 import { RagDocumentUploadModal } from "./components/RagDocumentUploadModal"
 import { RagDocumentDeleteModal } from "./components/RagDocumentDeleteModal"
 import { RagDocumentDetailModal } from "./components/RagDocumentDetailModal"
-import { RagQueryPlayground } from "./components/RagQueryPlayground"
 import { RagKnowledgeGuide } from "./components/RagKnowledgeGuide"
 import { toast } from "sonner"
 
@@ -38,7 +36,7 @@ export const RagAiPage: React.FC = () => {
   const [isUsingFallback, setIsUsingFallback] = useState<boolean>(false)
 
   // Active view tab
-  const [activeTab, setActiveTab] = useState<"DOCS" | "PLAYGROUND" | "GUIDE">("DOCS")
+  const [activeTab, setActiveTab] = useState<"DOCS" | "GUIDE">("DOCS")
   const [viewMode, setViewMode] = useState<"table" | "grid">("table")
 
   // Search, filter & sorting
@@ -352,21 +350,6 @@ export const RagAiPage: React.FC = () => {
             <span>Thư viện Tài liệu</span>
             <span className="ml-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600 font-bold">
               {documents.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("PLAYGROUND")}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
-              activeTab === "PLAYGROUND"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>Thử nghiệm truy vấn RAG</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-indigo-50 text-indigo-600 font-bold uppercase">
-              Playground
             </span>
           </button>
 
@@ -711,9 +694,6 @@ export const RagAiPage: React.FC = () => {
           )}
         </div>
       )}
-
-      {/* TAB 2: THỬ NGHIỆM TRUY VẤN RAG PLAYGROUND */}
-      {activeTab === "PLAYGROUND" && <RagQueryPlayground />}
 
       {/* TAB 3: HƯỚNG DẪN & CẤU HÌNH KIẾN TRÚC */}
       {activeTab === "GUIDE" && <RagKnowledgeGuide />}
